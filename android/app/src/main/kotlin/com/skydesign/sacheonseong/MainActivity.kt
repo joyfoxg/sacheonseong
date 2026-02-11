@@ -1,4 +1,4 @@
-package com.example.sacheonseong_game
+package com.skydesign.sacheonseong
 
 import io.flutter.embedding.android.FlutterActivity
 
