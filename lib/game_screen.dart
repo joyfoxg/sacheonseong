@@ -93,32 +93,71 @@ class _GameScreenState extends State<GameScreen> {
       barrierDismissible: false, // 다이얼로그 바깥 터치로 닫기 불가
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('게임 일시정지'),
-          content: const Text('원하는 작업을 선택해주세요.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('홈으로'),
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const TitleScreen()),
-                );
-              },
-            ),
-            TextButton(
-              child: const Text('게임 계속하기'),
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-              },
-            ),
-            TextButton(
-              child: const Text('게임 끝내기'),
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                SystemNavigator.pop(); // 앱 종료
-              },
-            ),
-          ],
+          title: const Text('게임 일시정지', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('원하는 작업을 선택해주세요.', textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              
+              // 계속하기 버튼 (가장 강조)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('게임 계속하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[600],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // 홈으로 버튼
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const TitleScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.home),
+                  label: const Text('홈으로 (메뉴)', style: TextStyle(fontSize: 16)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.brown[700],
+                    side: BorderSide(color: Colors.brown[300]!),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // 앱 종료 버튼
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    SystemNavigator.pop();
+                  },
+                  icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                  label: const Text('게임 끝내기', style: TextStyle(color: Colors.red, fontSize: 16)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
