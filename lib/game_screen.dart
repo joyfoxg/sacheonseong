@@ -28,9 +28,14 @@ class _GameScreenState extends State<GameScreen> {
   // 상태 관리
   String _state = 'preparing'; // preparing, playing, finished
   
-  // 아이템
-  int _hintCount = 3;
-  int _shuffleCount = 3;
+  // 아이템 (최대 2회)
+  int _hintCount = 2;
+  int _shuffleCount = 2;
+
+  // 타이머 및 시간 측정
+  Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
+  String _elapsedTime = "00:00";
 
   Timer? _pathClearTimer;
 
@@ -54,10 +59,31 @@ class _GameScreenState extends State<GameScreen> {
         retry++;
       }
       _state = 'playing';
-      _hintCount = 3;
-      _shuffleCount = 3;
+      _hintCount = 2;
+      _shuffleCount = 2;
       _selectedIndex = -1;
       _selectedPath = null;
+      
+      // 타이머 초기화 및 시작
+      _stopwatch.reset();
+      _stopwatch.start();
+      _startTimer();
+    });
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _state != 'playing') {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        final duration = _stopwatch.elapsed;
+        final minutes = duration.inMinutes.toString().padLeft(2, '0');
+        final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+        _elapsedTime = "$minutes:$seconds";
+      });
     });
   }
 
@@ -101,6 +127,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void dispose() {
     _pathClearTimer?.cancel();
+    _timer?.cancel();
+    _stopwatch.stop();
     // BGM은 TitleScreen과 공유하므로 여기서 멈추지 않음
     super.dispose();
   }
@@ -117,35 +145,87 @@ class _GameScreenState extends State<GameScreen> {
         _showExitDialog();
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFEFEBE9), // 따뜻한 배경색
+        backgroundColor: const Color(0xFFFDFCFB), // 더 밝고 깨끗한 배경색
         appBar: AppBar(
-          title: const Text('사천성'),
+          title: const Text('사천성', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.brown[800],
+          elevation: 0,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: '다시 섞기 ($_shuffleCount)',
-              onPressed: (_state == 'playing' && _shuffleCount > 0) ? _shuffleBoard : null,
-            ),
-            IconButton(
-              icon: const Icon(Icons.lightbulb),
-              tooltip: '힌트 ($_hintCount)',
-              onPressed: (_state == 'playing' && _hintCount > 0) ? _showHint : null,
+            // 실시간 시간 표시
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.brown[50],
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.brown[200]!),
+              ),
+              child: Row(
+                children: [
+                   Icon(Icons.timer_outlined, size: 18, color: Colors.brown[700]),
+                   const SizedBox(width: 4),
+                   Text(
+                     _elapsedTime,
+                     style: TextStyle(
+                       color: Colors.brown[900],
+                       fontWeight: FontWeight.bold,
+                       fontSize: 16,
+                       fontFamily: 'monospace',
+                     ),
+                   ),
+                ],
+              ),
             ),
           ],
         ),
         body: SafeArea(
           child: Column(
             children: [
-            // 내 남은 패 & 상태
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                _state == 'finished' 
-                    ? "승리했습니다! 🏆"
-                    : "남은 패: $myRemaining개",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              // 아이템 및 정보 영역
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 남은 패 표시
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _state == 'finished' ? "Clear! 🏆" : "남은 패",
+                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                        ),
+                        Text(
+                          "$myRemaining개",
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    // 아이템 버튼들
+                    Row(
+                      children: [
+                        _buildItemButton(
+                          icon: Icons.refresh,
+                          label: "셔플",
+                          count: _shuffleCount,
+                          onPressed: (_state == 'playing' && _shuffleCount > 0) ? _shuffleBoard : null,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildItemButton(
+                          icon: Icons.lightbulb_outline,
+                          label: "힌트",
+                          count: _hintCount,
+                          onPressed: (_state == 'playing' && _hintCount > 0) ? _showHint : null,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const Divider(height: 1),
 
             // 게임 보드
             Expanded(
@@ -311,12 +391,57 @@ class _GameScreenState extends State<GameScreen> {
      
      if (remaining == 0) {
        _state = 'finished';
-       _showResultDialog('클리어 성공!! 🎉');
+       _stopwatch.stop();
+       _timer?.cancel();
+       _showResultDialog('클리어 성공!! 🎉\n소요 시간: $_elapsedTime');
      } else if (_logic.isDeadlock(_board)) {
        // 더 이상 깰 수 없음 -> 자동 섞기
        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("패가 꼬여서 자동으로 섞습니다!")));
        _shuffleBoard();
      }
+  }
+
+  Widget _buildItemButton({
+    required IconData icon,
+    required String label,
+    required int count,
+    required VoidCallback? onPressed,
+    required Color color,
+  }) {
+    bool isEnabled = onPressed != null;
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isEnabled ? color.withOpacity(0.1) : Colors.grey[100],
+        foregroundColor: isEnabled ? color : Colors.grey[400],
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: isEnabled ? color.withOpacity(0.3) : Colors.grey[300]!),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 4),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 6),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: isEnabled ? color : Colors.grey[300],
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              "$count",
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _shuffleBoard() {
@@ -361,17 +486,23 @@ class _GameScreenState extends State<GameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('게임 종료'),
-        content: Text(message),
+        title: const Text('게임 종료', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
-          TextButton(
-            onPressed: () {
-               Navigator.pop(context); // Close dialog
-               // In standalone app, this might just reset or exit depending on logic.
-               // For now, let's just reset the game as we don't have a menu to go back to yet.
-               _startGame();
-            },
-            child: const Text('다시 하기'),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                 Navigator.pop(context); // Close dialog
+                 _startGame();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.brown[700],
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('다시 하기'),
+            ),
           ),
         ],
       ),
