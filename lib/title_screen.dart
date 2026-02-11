@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'game_screen.dart';
 import 'audio_manager.dart';
 import 'leaderboard_screen.dart';
+import 'widgets/ranking_marquee.dart';
 
 class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
@@ -28,11 +29,18 @@ class _TitleScreenState extends State<TitleScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 배경 이미지
+          // 배경 이미지 + 디버그용 롱탭
           Positioned.fill(
-            child: Image.asset(
-              'assets/image/title.jpg',
-              fit: BoxFit.cover,
+            child: GestureDetector(
+              onLongPress: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("디버그 모드: 게임 중 화면 상단을 3번 연속 클릭하면 즉시 클리어됩니다.")),
+                );
+              },
+              child: Image.asset(
+                'assets/image/title.jpg',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           
@@ -47,6 +55,16 @@ class _TitleScreenState extends State<TitleScreen> {
                   MaterialPageRoute(builder: (context) => const LeaderboardScreen()),
                 );
               },
+            ),
+          ),
+
+          // 중앙 실시간 랭킹 전광판 (고급형)
+          const Positioned(
+            top: 150, 
+            left: 0,
+            right: 0,
+            child: Center(
+              child: RankingMarquee(),
             ),
           ),
           

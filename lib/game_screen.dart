@@ -175,6 +175,8 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
+  int _debugClickCount = 0;
+
   @override
   Widget build(BuildContext context) {
     // 남은 타일 수 계산
@@ -189,7 +191,21 @@ class _GameScreenState extends State<GameScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xFFFDFCFB), // 더 밝고 깨끗한 배경색
         appBar: AppBar(
-          title: const Text('사천성', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: GestureDetector(
+            onTap: () {
+              _debugClickCount++;
+              if (_debugClickCount >= 3) {
+                _debugClickCount = 0;
+                setState(() {
+                  _state = 'finished';
+                  _stopwatch.stop();
+                  _timer?.cancel();
+                });
+                _showResultDialog('디버그 모드: 클리어 성공! 🎉\n소요 시간: $_elapsedTime');
+              }
+            },
+            child: const Text('사천성', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
           backgroundColor: Colors.white,
           foregroundColor: Colors.brown[800],
           elevation: 0,
@@ -574,14 +590,23 @@ class _GameScreenState extends State<GameScreen> {
                               nickname: nickname,
                               seconds: _stopwatch.elapsed.inSeconds,
                               displayTime: _elapsedTime,
-                            );
+                            ).timeout(const Duration(seconds: 10), onTimeout: () {
+                              throw TimeoutException("서버 응답 시간이 초과되었습니다. Firebase 설정을 확인해주세요.");
+                            });
+                            
                             if (context.mounted) {
                               Navigator.pop(context);
                               _showRanking(); // 랭킹 화면으로 이동
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("저장 실패: $e")));
+                              String errorMsg = "저장 실패";
+                              if (e is TimeoutException) {
+                                errorMsg = e.message ?? errorMsg;
+                              } else {
+                                errorMsg = "저장 중 오류가 발생했습니다. (API 활성화 여부를 확인하세요)";
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
                               setDialogState(() => isSaving = false);
                             }
                           }

@@ -33,7 +33,29 @@ class LeaderboardScreen extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-              return Center(child: Text('데이터를 불러오지 못했습니다: ${snapshot.error}'));
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                      const SizedBox(height: 16),
+                      Text(
+                        '데이터를 불러오지 못했습니다.\n(Firebase 인덱스 설정이 필요할 수 있습니다)',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red[700], fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '상세 에러: ${snapshot.error}',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
             }
 
             final scores = snapshot.data ?? [];

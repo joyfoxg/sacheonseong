@@ -65,7 +65,7 @@ class LeaderboardService {
           .toList();
     } catch (e) {
       print('Error getting top scores: $e');
-      return [];
+      rethrow; // UI에서 에러를 잡을 수 있도록 던짐
     }
   }
 }
