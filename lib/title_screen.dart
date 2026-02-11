@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'game_screen.dart';
 import 'audio_manager.dart';
+import 'leaderboard_screen.dart';
 
 class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
@@ -35,14 +36,26 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
           
-          // 게임 시작 투명 버튼
-          // 위치는 하단부 중앙 정도로 가정하고 넓게 잡음
-          // 필요하다면 Positioned 좌표를 세밀하게 조정 가능
+          // 리더보드 버튼 (상단 우측)
           Positioned(
-            bottom: 50, // 하단에서 50px 위
+            top: 40,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(Icons.leaderboard, color: Colors.white, size: 36),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const LeaderboardScreen()),
+                );
+              },
+            ),
+          ),
+          
+          // 게임 시작 투명 버튼
+          Positioned(
+            bottom: 50,
             left: 0,
             right: 0,
-            height: 150, // 높이 150px 영역
+            height: 150,
             child: Center(
               child: GestureDetector(
                 onTap: () {
@@ -51,11 +64,9 @@ class _TitleScreenState extends State<TitleScreen> {
                   );
                 },
                 child: Container(
-                  width: 300, // 너비 300px
-                  height: 100, // 높이 100px
-                  color: Colors.transparent, // 투명
-                  // 디버그용으로 색상을 넣고 싶다면 아래 주석 해제
-                  // color: Colors.red.withOpacity(0.3), 
+                  width: 300,
+                  height: 100,
+                  color: Colors.transparent,
                 ),
               ),
             ),

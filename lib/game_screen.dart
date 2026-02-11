@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'game_logic.dart';
 import 'audio_manager.dart';
-
 import 'title_screen.dart';
+import 'leaderboard_service.dart';
+import 'leaderboard_screen.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -15,6 +16,8 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final AudioManager _audioManager = AudioManager();
+  final LeaderboardService _leaderboardService = LeaderboardService();
+  final TextEditingController _nicknameController = TextEditingController();
   late SichuanLogic _logic;
   
   // Board dimensions (padding 포함)
@@ -520,33 +523,106 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  // Result dialog
+
   void _showResultDialog(String message) {
+    bool isSaving = false;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('게임 종료', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        actions: [
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                 Navigator.pop(context); // Close dialog
-                 _startGame();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.brown[700],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('다시 하기'),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('게임 종료', style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                const SizedBox(height: 20),
+                const Text('리더보드 등록을 위해 닉네임을 입력하세요!', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _nicknameController,
+                  decoration: const InputDecoration(
+                    hintText: '닉네임 (최대 10자)',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  maxLength: 10,
+                ),
+              ],
             ),
-          ),
-        ],
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            actions: [
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isSaving 
+                        ? null 
+                        : () async {
+                          final nickname = _nicknameController.text.trim();
+                          if (nickname.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("닉네임을 입력해주세요!")));
+                            return;
+                          }
+                          
+                          setDialogState(() => isSaving = true);
+                          try {
+                            await _leaderboardService.saveScore(
+                              nickname: nickname,
+                              seconds: _stopwatch.elapsed.inSeconds,
+                              displayTime: _elapsedTime,
+                            );
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              _showRanking(); // 랭킹 화면으로 이동
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("저장 실패: $e")));
+                              setDialogState(() => isSaving = false);
+                            }
+                          }
+                        },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[700],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: isSaving 
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : const Text('순위 등록하기'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: isSaving ? null : () {
+                         Navigator.pop(context); // Close dialog
+                         _startGame();
+                      },
+                      child: const Text('다시 하기 (저장 안 함)'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
       ),
     );
   }
+
+  void _showRanking() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LeaderboardScreen()),
+    ).then((_) => _startGame()); // 랭킹 보고 돌아오면 다시 시작
+  }
+
 }
 
 class _PathPainter extends CustomPainter {
