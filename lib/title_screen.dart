@@ -166,61 +166,6 @@ class _TitleScreenState extends State<TitleScreen> {
           ),
           
           
-          // [PATCH] 난이도 선택 (게임 시작 버튼 위)
-          Positioned(
-            bottom: 200, 
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.brown[300]!, width: 2),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<Difficulty>(
-                    value: _difficulty,
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.brown),
-                    style: TextStyle(
-                      color: Colors.brown[900], 
-                      fontSize: 18, 
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Pretendard', // 있으면 좋고 없어도 무관
-                    ),
-                    dropdownColor: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    onChanged: (Difficulty? newValue) {
-                      if (newValue != null) {
-                        setState(() => _difficulty = newValue);
-                      }
-                    },
-                    items: Difficulty.values.map<DropdownMenuItem<Difficulty>>((Difficulty value) {
-                      return DropdownMenuItem<Difficulty>(
-                        value: value,
-                        child: Row(
-                          children: [
-                            Icon(
-                              value == Difficulty.easy ? Icons.sentiment_satisfied_alt :
-                              value == Difficulty.normal ? Icons.sentiment_neutral :
-                              Icons.sentiment_very_dissatisfied,
-                              color: value == Difficulty.easy ? Colors.green :
-                                     value == Difficulty.normal ? Colors.blue :
-                                     Colors.red,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(value.label),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ),
-          ),
 
           // [PATCH] 게임 시작 버튼 (정밀 위치 조정)
           Positioned(
@@ -243,28 +188,18 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
 
-          // 옵션 버튼
+          // [PATCH] 옵션 버튼 (투명 영역)
           Positioned(
-            bottom: 50,
+            bottom: 40,
             left: 0,
             right: 0,
             child: Center(
-              child: TextButton.icon(
-                onPressed: () => _showSettingsDialog(),
-                icon: const Icon(Icons.settings, color: Colors.white70),
-                label: const Text(
-                  "게임 설정", 
-                  style: TextStyle(
-                    color: Colors.white, 
-                    fontSize: 16, 
-                    fontWeight: FontWeight.bold,
-                    shadows: [Shadow(color: Colors.black45, blurRadius: 2, offset: Offset(1, 1))]
-                  )
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  backgroundColor: Colors.black26,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              child: GestureDetector(
+                onTap: () => _showSettingsDialog(),
+                child: Container(
+                  width: 150,
+                  height: 50,
+                  color: Colors.transparent, // 투명 버튼 (배경 이미지의 Option 텍스트 활용)
                 ),
               ),
             ),
