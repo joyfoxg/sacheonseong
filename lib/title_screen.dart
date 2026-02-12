@@ -29,29 +29,90 @@ class _TitleScreenState extends State<TitleScreen> {
 
   void _showSettingsDialog() {
     bool bgmEnabled = AudioManager().isBgmEnabled;
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text("게임 설정"),
+            backgroundColor: const Color(0xFFFDFCFB),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text("게임 설정", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // BGM 설정
+                const Text("사운드", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                 SwitchListTile(
-                  title: const Text("배경 음악 (BGM)"),
+                  title: const Text("배경음악"),
+                  secondary: Icon(bgmEnabled ? Icons.music_note : Icons.music_off, color: Colors.brown),
                   value: bgmEnabled,
+                  activeColor: Colors.brown,
                   onChanged: (value) async {
                     await AudioManager().setBgmEnabled(value);
+                    if (value) {
+                      await AudioManager().playBgm();
+                    } else {
+                      await AudioManager().stopBgm();
+                    }
                     setDialogState(() => bgmEnabled = value);
                   },
+                ),
+                const Divider(),
+                const SizedBox(height: 8),
+
+                // 난이도 설정
+                const Text("난이도", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<Difficulty>(
+                      value: _difficulty,
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down, color: Colors.brown),
+                      items: Difficulty.values.map((Difficulty value) {
+                        return DropdownMenuItem<Difficulty>(
+                          value: value,
+                          child: Row(
+                            children: [
+                              Icon(
+                                value == Difficulty.easy ? Icons.sentiment_satisfied_alt :
+                                value == Difficulty.normal ? Icons.sentiment_neutral :
+                                Icons.sentiment_very_dissatisfied,
+                                color: value == Difficulty.easy ? Colors.green :
+                                       value == Difficulty.normal ? Colors.blue :
+                                       Colors.red,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(value.label, style: const TextStyle(fontSize: 16)),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (Difficulty? newValue) {
+                        if (newValue != null) {
+                          // 다이얼로그 상태와 메인 화면 상태 모두 업데이트
+                          setDialogState(() => _difficulty = newValue);
+                          this.setState(() => _difficulty = newValue);
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("닫기"),
+                child: const Text("닫기", style: TextStyle(color: Colors.brown, fontWeight: FontWeight.bold)),
               ),
             ],
           );
@@ -182,18 +243,28 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
 
-          // [PATCH] 옵션 버튼 (정밀 위치 조정)
+          // 옵션 버튼
           Positioned(
-            bottom: 40, // 시작 버튼 아래 위치
+            bottom: 50,
             left: 0,
             right: 0,
             child: Center(
-              child: GestureDetector(
-                onTap: () => _showSettingsDialog(),
-                child: Container(
-                  width: 150,
-                  height: 50,
-                  color: Colors.transparent, // 투명하지만 '옵션' 글자 영역만 차지
+              child: TextButton.icon(
+                onPressed: () => _showSettingsDialog(),
+                icon: const Icon(Icons.settings, color: Colors.white70),
+                label: const Text(
+                  "게임 설정", 
+                  style: TextStyle(
+                    color: Colors.white, 
+                    fontSize: 16, 
+                    fontWeight: FontWeight.bold,
+                    shadows: [Shadow(color: Colors.black45, blurRadius: 2, offset: Offset(1, 1))]
+                  )
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  backgroundColor: Colors.black26,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
               ),
             ),
