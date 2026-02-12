@@ -6,8 +6,7 @@ import '../leaderboard_service.dart';
 import '../difficulty.dart';
 
 class RankingMarquee extends StatefulWidget {
-  final Difficulty difficulty;
-  const RankingMarquee({super.key, required this.difficulty});
+  const RankingMarquee({super.key});
 
   @override
   State<RankingMarquee> createState() => _RankingMarqueeState();
@@ -24,19 +23,13 @@ class _RankingMarqueeState extends State<RankingMarquee> {
   bool _isUserInteracting = false;
   Timer? _resumeTimer;
 
+  int _currentDifficultyIndex = 0; // 현재 표시 중인 난이도 인덱스
+
   @override
   void initState() {
     super.initState();
     _loadScores();
     _startFadeCycle(); // 페이드 주기 시작
-  }
-
-  @override
-  void didUpdateWidget(RankingMarquee oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.difficulty != widget.difficulty) {
-      _loadScores();
-    }
   }
 
   // 페이드 인/아웃 주기 제어
@@ -52,8 +45,20 @@ class _RankingMarqueeState extends State<RankingMarquee> {
       // 2. 스르르 사라짐 (2초 소요)
       setState(() => _opacity = 0.0);
       
-      // 3. 사라진 상태로 4초 대기
-      await Future.delayed(const Duration(seconds: 4));
+      // 3. 사라진 상태로 4초 대기 (이때 데이터 교체)
+      await Future.delayed(const Duration(seconds: 2)); // 완전히 사라질 때까지 대기 (Duration(seconds: 2)와 동일하게)
+      
+      if (!mounted || _isUserInteracting) return;
+      
+      // 다음 난이도로 변경 및 데이터 로드
+      setState(() {
+        _currentDifficultyIndex = (_currentDifficultyIndex + 1) % Difficulty.values.length;
+        _isLoading = true; // 로딩 상태 잠깐 표시 (깜빡임 방지)
+      });
+      await _loadScores();
+
+      // 나머지 대기 시간 (총 4초 대기 중 2초 지났고, 데이터 로드 시간 고려하여 2초 더 대기)
+      await Future.delayed(const Duration(seconds: 2));
       if (!mounted || _isUserInteracting) return;
       
       // 4. 다시 스르르 나타남 (2초 소요)
@@ -90,7 +95,7 @@ class _RankingMarqueeState extends State<RankingMarquee> {
       // 10개 이상 스크롤을 위해 더 많이 가져옴
       final scores = await _service.getTopScores(
         limit: 20, 
-        difficulty: widget.difficulty.name,
+        difficulty: Difficulty.values[_currentDifficultyIndex].name,
       ); 
       if (mounted) {
         setState(() {
@@ -188,7 +193,8 @@ class _RankingMarqueeState extends State<RankingMarquee> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: Text(
-                        "🏆 실시간 명예의 전당",
+                      child: Text(
+                        "🏆 ${Difficulty.values[_currentDifficultyIndex].label} 랭킹 Top 20",
                         style: TextStyle(
                           color: Colors.amber[100],
                           fontWeight: FontWeight.bold,

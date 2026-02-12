@@ -161,7 +161,7 @@ class _TitleScreenState extends State<TitleScreen> {
             left: 0,
             right: 0,
             child: Center(
-              child: RankingMarquee(difficulty: _difficulty),
+              child: RankingMarquee(),
             ),
           ),
           
