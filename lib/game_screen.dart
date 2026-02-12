@@ -44,6 +44,7 @@ class _GameScreenState extends State<GameScreen> {
 
   final TransformationController _transformationController = TransformationController();
   final GlobalKey _boardKey = GlobalKey();
+  final GlobalKey _viewportKey = GlobalKey();
 
   @override
   void initState() {
@@ -61,25 +62,27 @@ class _GameScreenState extends State<GameScreen> {
   void _fitBoardToScreen() {
     if (!mounted) return;
     
-    // 현재 위젯의 실제 렌더링 크기 가져오기
-    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    // 뷰포트(InteractiveViewer가 표시되는 영역)의 크기 가져오기
+    final RenderBox? renderBox = _viewportKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
     
-    final Size screenSize = renderBox.size;
-    if (screenSize.width == 0 || screenSize.height == 0) return;
+    final Size viewportSize = renderBox.size;
+    if (viewportSize.width == 0 || viewportSize.height == 0) return;
 
     // 보드의 실제 픽셀 크기 계산 (11x10 기준)
     const double boardWidth = (cols - 2) * 110.0;
     const double boardHeight = (rows - 2) * 145.0;
 
-    // 가로/세로 중 더 제한적인 쪽에 맞춰 scale 계산
-    double scaleX = (screenSize.width - 40) / boardWidth;
-    double scaleY = (screenSize.height - 120) / boardHeight; 
+    // 뷰포트 크기에 맞춰 scale 계산 (여백 20px)
+    double scaleX = (viewportSize.width - 20) / boardWidth;
+    double scaleY = (viewportSize.height - 20) / boardHeight; 
     double scale = (scaleX < scaleY ? scaleX : scaleY).clamp(0.05, 2.5);
 
-    // 화면 중앙 정렬을 위한 offset 계산
-    double xOffset = (screenSize.width - boardWidth * scale) / 2;
-    double yOffset = (screenSize.height - boardHeight * scale) / 2;
+    // 뷰포트 중앙 정렬을 위한 offset 계산
+    // InteractiveViewer의 컨텐츠는 (0,0)에서 시작하므로, 
+    // 뷰포트 중앙과 컨텐츠(스케일된 보드) 중앙을 맞추기 위한 이동 거리
+    double xOffset = (viewportSize.width - boardWidth * scale) / 2;
+    double yOffset = (viewportSize.height - boardHeight * scale) / 2;
 
     _transformationController.value = Matrix4.identity()
       ..translate(xOffset, yOffset)
@@ -323,8 +326,10 @@ class _GameScreenState extends State<GameScreen> {
             // 게임 보드 (줌 및 가로/세로 스크롤 가능한 영역)
             Expanded(
               flex: 5,
-              child: ClipRect(
-                child: InteractiveViewer(
+              child: Container(
+                key: _viewportKey,
+                child: ClipRect(
+                  child: InteractiveViewer(
                   transformationController: _transformationController,
                   constrained: false, // 컨테이너가 화면에 눌리지 않도록 제약 해제 (왜곡 방지)
                   boundaryMargin: const EdgeInsets.all(1000), // 대폭 확장된 여분 공간
@@ -336,7 +341,7 @@ class _GameScreenState extends State<GameScreen> {
                       // 실제 타일 영역(11x10) 고정 규격으로 계산 (110x145 비율)
                       width: (cols - 2) * 110.0, 
                       height: (rows - 2) * 145.0, 
-                      margin: const EdgeInsets.symmetric(vertical: 40),
+                      // margin 제거 (정확한 중앙 정렬을 위해)
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           const double tileWidth = 110.0;
