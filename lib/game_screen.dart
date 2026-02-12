@@ -719,6 +719,7 @@ class _GameScreenState extends State<GameScreen> {
                               nickname: nickname,
                               seconds: _stopwatch.elapsed.inSeconds,
                               displayTime: _elapsedTime,
+                              difficulty: widget.difficulty.name,
                             ).timeout(const Duration(seconds: 10), onTimeout: () {
                               throw TimeoutException("서버 응답 시간이 초과되었습니다. Firebase 설정을 확인해주세요.");
                             });
