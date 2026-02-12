@@ -5,10 +5,6 @@ class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
 
   @override
-class LeaderboardScreen extends StatelessWidget {
-  const LeaderboardScreen({super.key});
-
-  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
