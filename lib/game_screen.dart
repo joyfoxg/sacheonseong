@@ -296,14 +296,14 @@ class _GameScreenState extends State<GameScreen> {
                   maxScale: 2.5,
                   child: Center(
                     child: Container(
-                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (150x130 광폭 규격)
-                      width: (cols - 2) * 150.0, 
-                      height: (rows - 2) * 130.0, 
+                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (110x145 실제 마작패 비율)
+                      width: (cols - 2) * 110.0, 
+                      height: (rows - 2) * 145.0, 
                       margin: const EdgeInsets.symmetric(vertical: 40),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          const double tileWidth = 150.0;
-                          const double tileHeight = 130.0;
+                          const double tileWidth = 110.0;
+                          const double tileHeight = 145.0;
                           
                           return Stack(
                             children: [
