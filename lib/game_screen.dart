@@ -285,29 +285,37 @@ class _GameScreenState extends State<GameScreen> {
               ),
               const Divider(height: 1),
 
-            // 게임 보드
+            // 게임 보드 (가로/세로 스크롤 가능한 영역)
             Expanded(
               flex: 5,
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: cols / rows,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    // 보드 크기를 고정된 타일 크기에 맞춰 계산 (cols: 9, rows: 12)
+                    width: 9 * 65.0, 
+                    height: 12 * 85.0,
+                    margin: const EdgeInsets.symmetric(vertical: 20),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        double tileWidth = constraints.maxWidth / cols;
-                        double tileHeight = constraints.maxHeight / rows;
+                        const double tileWidth = 65.0;
+                        const double tileHeight = 85.0;
                         
                         return Stack(
                           children: [
                             // 타일 그리드
                             GridView.builder(
                               physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: cols,
-                                childAspectRatio: tileWidth / tileHeight,
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 9, // cols
+                                mainAxisExtent: tileHeight,
+                                crossAxisSpacing: 0,
+                                mainAxisSpacing: 0,
                               ),
-                              itemCount: rows * cols,
+                              itemCount: 12 * 9, // rows * cols
                               itemBuilder: (context, index) {
                                 return GestureDetector(
                                   onTap: () => _handleTap(index),
@@ -321,7 +329,7 @@ class _GameScreenState extends State<GameScreen> {
                               IgnorePointer(
                                 child: CustomPaint(
                                   size: Size(constraints.maxWidth, constraints.maxHeight),
-                                  painter: _PathPainter(_selectedPath!, cols, tileWidth, tileHeight),
+                                  painter: _PathPainter(_selectedPath!, 9, tileWidth, tileHeight),
                                 ),
                               ),
                           ],
@@ -330,8 +338,8 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
                 ),
-                ),
               ),
+            ),
             ],
           ),
         ),

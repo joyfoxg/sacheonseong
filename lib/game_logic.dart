@@ -4,15 +4,38 @@ import 'dart:math';
 class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
   // 유니코드 마작 타일 리스트
-  static const List<String> tiles = [
-    // 만수패 (Characters)
-    'b_tile_00_00.png', 'b_tile_00_01.png', 'b_tile_00_03.png', 'b_tile_00_04.png', 'b_tile_00_05.png', 'b_tile_00_06.png', 'b_tile_00_07.png', 'b_tile_00_08.png', 'b_tile_00_10.png',
-    // 통수패 (Dots)
-    'b_tile_01_00.png', 'b_tile_01_01.png', 'b_tile_01_02.png', 'b_tile_01_03.png', 'b_tile_01_04.png', 'b_tile_01_08.png', 'b_tile_01_09.png', 'b_tile_01_10.png', 'b_tile_01_11.png',
-    // 삭수패 (Bamboos)
+  // 243종 전체 마작패 리스트 (가져오신 이미지 기반)
+  static const List<String> allTiles = [
+    'b_tile_00_00.png', 'b_tile_00_01.png', 'b_tile_00_03.png', 'b_tile_00_04.png', 'b_tile_00_05.png', 'b_tile_00_06.png', 'b_tile_00_07.png', 'b_tile_00_08.png', 'b_tile_00_10.png', 'b_tile_00_11.png', 'b_tile_00_12.png', 'b_tile_00_13.png',
+    'b_tile_01_00.png', 'b_tile_01_01.png', 'b_tile_01_02.png', 'b_tile_01_03.png', 'b_tile_01_04.png', 'b_tile_01_08.png', 'b_tile_01_09.png', 'b_tile_01_10.png', 'b_tile_01_11.png', 'b_tile_01_12.png', 'b_tile_01_13.png',
     'b_tile_02_03.png', 'b_tile_02_04.png', 'b_tile_02_05.png', 'b_tile_02_06.png', 'b_tile_02_07.png', 'b_tile_02_08.png', 'b_tile_02_09.png', 'b_tile_02_11.png',
-    // 자패 (Winds/Dragons)
     'b_tile_03_03.png', 'b_tile_03_05.png', 'b_tile_03_07.png', 'b_tile_03_08.png', 'b_tile_03_09.png', 'b_tile_03_10.png', 'b_tile_03_11.png', 'b_tile_03_12.png',
+    'b_tile_04_00.png', 'b_tile_04_01.png', 'b_tile_04_02.png', 'b_tile_04_03.png', 'b_tile_04_07.png', 'b_tile_04_08.png', 'b_tile_04_09.png', 'b_tile_04_10.png', 'b_tile_04_11.png', 'b_tile_04_12.png', 'b_tile_04_13.png',
+    'b_tile_05_00.png', 'b_tile_05_02.png', 'b_tile_05_03.png', 'b_tile_05_04.png', 'b_tile_05_05.png', 'b_tile_05_07.png', 'b_tile_05_09.png', 'b_tile_05_10.png', 'b_tile_05_13.png',
+    'b_tile_06_00.png', 'b_tile_06_01.png', 'b_tile_06_02.png', 'b_tile_06_03.png', 'b_tile_06_04.png', 'b_tile_06_05.png', 'b_tile_06_08.png', 'b_tile_06_09.png', 'b_tile_06_11.png', 'b_tile_06_12.png',
+    'b_tile_07_00.png', 'b_tile_07_01.png', 'b_tile_07_02.png', 'b_tile_07_03.png', 'b_tile_07_04.png', 'b_tile_07_05.png', 'b_tile_07_06.png', 'b_tile_07_07.png', 'b_tile_07_08.png', 'b_tile_07_09.png', 'b_tile_07_10.png', 'b_tile_07_12.png', 'b_tile_07_13.png',
+    'b_tile_08_00.png', 'b_tile_08_01.png', 'b_tile_08_02.png', 'b_tile_08_04.png', 'b_tile_08_07.png', 'b_tile_08_08.png', 'b_tile_08_09.png', 'b_tile_08_12.png', 'b_tile_08_13.png',
+    'b_tile_09_00.png', 'b_tile_09_01.png', 'b_tile_09_02.png', 'b_tile_09_04.png', 'b_tile_09_05.png', 'b_tile_09_06.png', 'b_tile_09_07.png', 'b_tile_09_08.png', 'b_tile_09_09.png', 'b_tile_09_12.png', 'b_tile_09_13.png',
+    'b_tile_10_00.png', 'b_tile_10_01.png', 'b_tile_10_02.png', 'b_tile_10_03.png', 'b_tile_10_04.png', 'b_tile_10_05.png', 'b_tile_10_06.png', 'b_tile_10_08.png', 'b_tile_10_09.png', 'b_tile_10_10.png', 'b_tile_10_11.png',
+    'd_tile_00_00.png', 'd_tile_00_01.png', 'd_tile_00_02.png', 'd_tile_00_03.png', 'd_tile_00_04.png', 'd_tile_00_05.png', 'd_tile_00_06.png', 'd_tile_00_07.png', 'd_tile_00_08.png', 'd_tile_00_09.png', 'd_tile_00_13.png',
+    'd_tile_01_05.png', 'd_tile_01_06.png', 'd_tile_01_08.png', 'd_tile_01_09.png', 'd_tile_01_10.png', 'd_tile_01_13.png',
+    'd_tile_02_01.png', 'd_tile_02_02.png', 'd_tile_02_03.png', 'd_tile_02_04.png', 'd_tile_02_05.png', 'd_tile_02_06.png', 'd_tile_02_07.png', 'd_tile_02_08.png',
+    'd_tile_03_02.png', 'd_tile_03_05.png', 'd_tile_03_10.png', 'd_tile_03_13.png',
+    'd_tile_04_03.png', 'd_tile_04_04.png', 'd_tile_04_06.png', 'd_tile_04_07.png', 'd_tile_04_08.png',
+    'd_tile_05_07.png', 'd_tile_06_03.png', 'd_tile_06_04.png', 'd_tile_08_05.png', 'd_tile_08_10.png',
+    'd_tile_09_01.png', 'd_tile_09_03.png', 'd_tile_09_04.png', 'd_tile_10_06.png', 'd_tile_10_08.png',
+    'e_tile_00_00.png', 'e_tile_00_01.png', 'e_tile_00_02.png', 'e_tile_00_03.png', 'e_tile_00_04.png', 'e_tile_00_05.png', 'e_tile_00_06.png', 'e_tile_00_07.png', 'e_tile_00_08.png', 'e_tile_00_09.png', 'e_tile_00_10.png', 'e_tile_00_11.png',
+    'e_tile_01_05.png', 'e_tile_01_09.png', 'e_tile_01_10.png', 'e_tile_01_13.png',
+    'e_tile_03_02.png', 'e_tile_03_04.png', 'e_tile_04_13.png', 'e_tile_07_04.png',
+    'e_tile_08_01.png', 'e_tile_08_02.png', 'e_tile_08_03.png', 'e_tile_08_04.png', 'e_tile_08_10.png', 'e_tile_08_13.png',
+    'e_tile_09_00.png', 'e_tile_09_02.png', 'e_tile_09_03.png', 'e_tile_09_04.png', 'e_tile_09_10.png', 'e_tile_09_11.png', 'e_tile_09_12.png', 'e_tile_09_13.png',
+    'e_tile_10_02.png', 'e_tile_10_04.png', 'e_tile_10_10.png',
+    'f_tile_00_00.png', 'f_tile_00_01.png', 'f_tile_00_02.png', 'f_tile_00_03.png', 'f_tile_00_04.png', 'f_tile_00_05.png', 'f_tile_00_06.png', 'f_tile_00_07.png', 'f_tile_00_08.png', 'f_tile_00_09.png', 'f_tile_00_10.png', 'f_tile_00_11.png', 'f_tile_00_12.png', 'f_tile_00_13.png',
+    'f_tile_01_00.png', 'f_tile_01_01.png', 'f_tile_01_06.png', 'f_tile_01_07.png', 'f_tile_01_08.png', 'f_tile_01_09.png', 'f_tile_01_10.png', 'f_tile_01_13.png',
+    'f_tile_02_06.png', 'f_tile_02_07.png', 'f_tile_02_08.png', 'f_tile_02_09.png', 'f_tile_02_10.png', 'f_tile_02_11.png', 'f_tile_02_12.png',
+    'f_tile_03_07.png', 'f_tile_03_08.png', 'f_tile_04_00.png', 'f_tile_04_01.png', 'f_tile_04_06.png', 'f_tile_04_07.png', 'f_tile_04_10.png',
+    'f_tile_05_07.png', 'f_tile_05_08.png', 'f_tile_05_10.png', 'f_tile_06_03.png', 'f_tile_07_07.png', 'f_tile_07_10.png',
+    'f_tile_08_07.png', 'f_tile_08_08.png', 'f_tile_09_07.png', 'f_tile_10_06.png', 'f_tile_10_07.png', 'f_tile_10_08.png', 'f_tile_10_10.png',
   ];
 
   final int rows;
@@ -20,10 +43,6 @@ class SichuanLogic {
   
   SichuanLogic({required this.rows, required this.cols});
 
-  // 빈 보드는 ''(empty string)으로 표현
-  // 테두리를 빈 공간으로 감싸서 경로 탐색을 쉽게 함 (padding)
-  // 실제 게임 보드 크기: (rows-2) x (cols-2)
-  
   List<String> generateBoard() {
     int totalTiles = (rows - 2) * (cols - 2);
     if (totalTiles % 2 != 0) throw Exception("Board size must be even");
@@ -31,15 +50,19 @@ class SichuanLogic {
     List<String> deck = [];
     int pairs = totalTiles ~/ 2;
     
-    // 타일 랜덤 선택 및 쌍으로 추가
+    // 전체 풀에서 무작위로 pairs만큼의 종류를 선택
     Random random = Random();
+    List<String> pool = List.from(allTiles)..shuffle(random);
+    
+    // 타일 랜덤 선택 및 쌍으로 추가
     for (int i = 0; i < pairs; i++) {
-        String tile = tiles[random.nextInt(tiles.length)];
+        // 풀이 모자라면 다시 섞어서 순환 (현재 243종이라 35종 선별 시 충분함)
+        String tile = pool[i % pool.length];
         deck.add(tile);
         deck.add(tile);
     }
     
-    deck.shuffle();
+    deck.shuffle(random);
 
     // 2D 보드 생성 (테두리는 빈 값)
     List<String> board = List.filled(rows * cols, '');
