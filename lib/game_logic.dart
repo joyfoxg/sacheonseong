@@ -58,11 +58,11 @@ class SichuanLogic {
     List<String> deck = [];
     Random random = Random();
 
-    // 비율 설정: 수패 70%, 자패 20%, 특수패 10% 기반 동적 계산
+    // 비율 설정: 수패 85%, 자패 12%, 특수패 3% (숫자/한자 비중 극대화)
     int totalPairs = totalTiles ~/ 2;
-    int numSpecials = totalPairs ~/ 10; // 10%
-    int numHonors = totalPairs ~/ 5;    // 20%
-    int numNumbers = totalPairs - numSpecials - numHonors; // 나머지 70%
+    int numSpecials = (totalPairs * 0.03).toInt().clamp(1, totalPairs); // 3%
+    int numHonors = (totalPairs * 0.12).toInt().clamp(2, totalPairs);   // 12%
+    int numNumbers = totalPairs - numSpecials - numHonors; // 나머지 85%
 
     void addPairsFromList(List<String> list, int count) {
       if (count <= 0) return;

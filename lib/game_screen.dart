@@ -295,14 +295,14 @@ class _GameScreenState extends State<GameScreen> {
                   maxScale: 2.5,
                   child: Center(
                     child: Container(
-                      // 보드 크기를 고정된 타일 크기에 맞춰 계산
+                      // 보드 크기를 최적화된 타일 크기에 맞춰 계산
                       width: cols * 65.0, 
-                      height: rows * 85.0,
+                      height: rows * 75.0, // 85.0 -> 75.0 (세로 여백 제거)
                       margin: const EdgeInsets.symmetric(vertical: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           const double tileWidth = 65.0;
-                          const double tileHeight = 85.0;
+                          const double tileHeight = 75.0; // 85.0 -> 75.0
                           
                           return Stack(
                             children: [
@@ -353,35 +353,35 @@ class _GameScreenState extends State<GameScreen> {
     if (content.isEmpty) return const SizedBox(); // 빈 공간
 
     return Container(
-      margin: const EdgeInsets.all(0.3), // 여백 극소화
+      margin: const EdgeInsets.all(0.2), // 여백 극최소화
       decoration: BoxDecoration(
         color: isSelected ? Colors.orange.withOpacity(0.3) : Colors.white,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(1.5),
         border: Border.all(
           color: isSelected ? Colors.orange : const Color(0xFFD7CCC8),
-          width: isSelected ? 2.0 : 0.5,
+          width: isSelected ? 1.8 : 0.4,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 1,
-            offset: const Offset(0.3, 0.3),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 0.5,
+            offset: const Offset(0.2, 0.2),
           ),
           if (isSelected)
             BoxShadow(
               color: Colors.orange.withOpacity(0.4),
-              blurRadius: 6,
-              spreadRadius: 1,
+              blurRadius: 5,
+              spreadRadius: 0.5,
             ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(1.5),
+        borderRadius: BorderRadius.circular(1),
         child: Padding(
-          padding: const EdgeInsets.all(0.1), // 내부 여백 거의 제거
+          padding: EdgeInsets.zero, // 이미지 주변 여백 완전 제거
           child: Image.asset(
             'assets/image/tiles/$content',
-            fit: BoxFit.contain,
+            fit: BoxFit.fill, // 셀에 꽉 차도록 필 (비율 살짝 변해도 가시성 우선)
             errorBuilder: (context, error, stackTrace) => Center(
               child: Text(content.contains('_') ? content.split('_').last[0] : '?', style: const TextStyle(fontSize: 8)),
             ),
