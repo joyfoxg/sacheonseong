@@ -3,6 +3,7 @@ import 'game_screen.dart';
 import 'audio_manager.dart';
 import 'leaderboard_screen.dart';
 import 'widgets/ranking_marquee.dart';
+import 'difficulty.dart';
 
 class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
@@ -23,6 +24,8 @@ class _TitleScreenState extends State<TitleScreen> {
     await audioManager.init();
     await audioManager.playBgm();
   }
+
+  Difficulty _difficulty = Difficulty.normal;
 
   void _showSettingsDialog() {
     bool bgmEnabled = AudioManager().isBgmEnabled;
@@ -101,6 +104,63 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
           
+          
+          // [PATCH] 난이도 선택 (게임 시작 버튼 위)
+          Positioned(
+            bottom: 200, 
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.brown[300]!, width: 2),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<Difficulty>(
+                    value: _difficulty,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.brown),
+                    style: TextStyle(
+                      color: Colors.brown[900], 
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Pretendard', // 있으면 좋고 없어도 무관
+                    ),
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    onChanged: (Difficulty? newValue) {
+                      if (newValue != null) {
+                        setState(() => _difficulty = newValue);
+                      }
+                    },
+                    items: Difficulty.values.map<DropdownMenuItem<Difficulty>>((Difficulty value) {
+                      return DropdownMenuItem<Difficulty>(
+                        value: value,
+                        child: Row(
+                          children: [
+                            Icon(
+                              value == Difficulty.easy ? Icons.sentiment_satisfied_alt :
+                              value == Difficulty.normal ? Icons.sentiment_neutral :
+                              Icons.sentiment_very_dissatisfied,
+                              color: value == Difficulty.easy ? Colors.green :
+                                     value == Difficulty.normal ? Colors.blue :
+                                     Colors.red,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(value.label),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           // [PATCH] 게임 시작 버튼 (정밀 위치 조정)
           Positioned(
             bottom: 120, // 높이 조정 (기존 50에서 상향)
@@ -110,7 +170,7 @@ class _TitleScreenState extends State<TitleScreen> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const GameScreen()),
+                    MaterialPageRoute(builder: (context) => GameScreen(difficulty: _difficulty)),
                   );
                 },
                 child: Container(

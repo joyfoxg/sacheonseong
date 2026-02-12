@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
+import 'difficulty.dart';
 
 class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
@@ -30,10 +31,13 @@ class SichuanLogic {
     'pt_tile_00_00.png', 'pt_tile_00_01.png', 'pt_tile_00_03.png', 'pt_tile_01_00.png', 'pt_tile_01_10.png', 'pt_tile_02_03.png', 'pt_tile_04_01.png', 'pt_tile_06_01.png', 'pt_tile_06_02.png', 'pt_tile_06_03.png', 'pt_tile_07_01.png', 'pt_tile_07_02.png', 'pt_tile_08_01.png', 'pt_tile_08_02.png', 'pt_tile_08_13.png', 'pt_tile_09_01.png', 'pt_tile_09_02.png', 'pt_tile_09_04.png', 'pt_tile_09_06.png', 'pt_tile_09_09.png', 'pt_tile_09_12.png', 'pt_tile_09_13.png', 'pt_tile_10_02.png', 'pt_tile_10_03.png', 'pt_tile_10_04.png', 'pt_tile_10_06.png', 'pt_tile_10_08.png',
   ];
 
+class SichuanLogic {
+  // 사천성 보드 크기 (10x14 등 짝수 권장)
   final int rows;
   final int cols;
+  final Difficulty difficulty;
   
-  SichuanLogic({required this.rows, required this.cols});
+  SichuanLogic({required this.rows, required this.cols, required this.difficulty = Difficulty.normal});
 
   List<String> generateBoard() {
     int totalTiles = (rows - 2) * (cols - 2);
@@ -42,9 +46,26 @@ class SichuanLogic {
     List<String> deck = [];
     Random random = Random();
 
-    // 카테고리별 초기 분류
+    // 난이도에 따른 타일 풀 조정 (Easy일수록 종류를 줄여서 중복 확률 높임)
+    List<String> pool = List.from(allTileFiles);
+    pool.shuffle(random);
+    
+    int poolSize;
+    if (difficulty == Difficulty.easy) {
+      poolSize = 25; // 종류를 25개로 제한 -> 55쌍 / 25종 = 평균 2.2쌍 (4.4개) 중복
+    } else if (difficulty == Difficulty.normal) {
+      poolSize = 45; // 종류를 45개로 제한 -> 55쌍 / 45종 = 평균 1.2쌍
+    } else {
+      poolSize = pool.length; // 전체 사용
+    }
+    
+    // 풀 크기만큼 자르기 (단, 최소한의 갯수는 보장되어야 함)
+    poolSize = min(poolSize, pool.length);
+    List<String> activeTiles = pool.sublist(0, poolSize);
+
+    // 카테고리별 초기 분류 (선별된 activeTiles 기준)
     Map<String, List<String>> categories = {};
-    for (String file in allTileFiles) {
+    for (String file in activeTiles) {
       String prefix = file.substring(0, 2);
       categories.putIfAbsent(prefix, () => []).add(file);
     }

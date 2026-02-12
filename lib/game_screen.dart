@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'game_logic.dart';
 import 'audio_manager.dart';
-import 'title_screen.dart';
-import 'leaderboard_service.dart';
-import 'leaderboard_screen.dart';
+import 'difficulty.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final Difficulty difficulty;
+  const GameScreen({super.key, this.difficulty = Difficulty.normal});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -31,14 +30,15 @@ class _GameScreenState extends State<GameScreen> {
   // 상태 관리
   String _state = 'preparing'; // preparing, playing, finished
   
-  // 아이템 (최대 2회)
-  int _hintCount = 2;
-  int _shuffleCount = 2;
+  // 아이템
+  late int _hintCount;
+  late int _shuffleCount;
 
   // 타이머 및 시간 측정
   Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   String _elapsedTime = "00:00";
+  int? _timeLimitSeconds; // 제한 시간 (초). null이면 무제한
 
   Timer? _pathClearTimer;
 
@@ -50,13 +50,33 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
 
-    
-    _logic = SichuanLogic(rows: rows, cols: cols);
+    _applyDifficultySettings();
+    _logic = SichuanLogic(rows: rows, cols: cols, difficulty: widget.difficulty);
     // BGM is started in TitleScreen
     _startGame();
     
     // 첫 프레임 렌더링 후 보드 크기를 화면에 최적으로 맞춤
     WidgetsBinding.instance.addPostFrameCallback((_) => _fitBoardToScreen());
+  }
+
+  void _applyDifficultySettings() {
+    switch (widget.difficulty) {
+      case Difficulty.easy:
+        _hintCount = 5;
+        _shuffleCount = 5;
+        _timeLimitSeconds = null; // 무제한
+        break;
+      case Difficulty.normal:
+        _hintCount = 3;
+        _shuffleCount = 3;
+        _timeLimitSeconds = 600; // 10분
+        break;
+      case Difficulty.hard:
+        _hintCount = 1;
+        _shuffleCount = 1;
+        _timeLimitSeconds = 300; // 5분
+        break;
+    }
   }
 
   void _fitBoardToScreen() {
@@ -99,8 +119,9 @@ class _GameScreenState extends State<GameScreen> {
         retry++;
       }
       _state = 'playing';
-      _hintCount = 2;
-      _shuffleCount = 2;
+      
+      // 난이도별 아이템 및 시간 리셋
+      _applyDifficultySettings();
       _selectedIndex = -1;
       _selectedPath = null;
       
@@ -118,13 +139,64 @@ class _GameScreenState extends State<GameScreen> {
         timer.cancel();
         return;
       }
+      
       setState(() {
-        final duration = _stopwatch.elapsed;
-        final minutes = duration.inMinutes.toString().padLeft(2, '0');
-        final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
-        _elapsedTime = "$minutes:$seconds";
+        int contentSeconds;
+        int elapsed = _stopwatch.elapsed.inSeconds;
+
+        if (_timeLimitSeconds != null) {
+          // 제한 시간 모드
+          contentSeconds = _timeLimitSeconds! - elapsed;
+          if (contentSeconds <= 0) {
+            contentSeconds = 0;
+            _stopwatch.stop();
+            timer.cancel();
+            _handleTimeOut();
+          }
+        } else {
+          // 무제한 모드
+          contentSeconds = elapsed;
+        }
+
+        int minutes = contentSeconds ~/ 60;
+        int seconds = contentSeconds % 60;
+        _elapsedTime = "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
       });
     });
+  }
+
+  void _handleTimeOut() {
+    setState(() {
+      _state = 'failed'; // 타임오버 상태
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text("시간 초과! ⏰"),
+        content: const Text("아쉽게도 제한 시간이 모두 지났습니다."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => const TitleScreen())
+              );
+            },
+            child: const Text("메인으로"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startGame();
+            },
+            child: const Text("다시하기"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showExitDialog() async {
