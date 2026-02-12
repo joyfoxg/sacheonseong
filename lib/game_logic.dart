@@ -59,7 +59,7 @@ class SichuanLogic {
     Random random = Random();
 
     // 비율 설정: 수패 70%, 자패 20%, 특수패 10% 기반 동적 계산
-    int totalPairs = pairs;
+    int totalPairs = totalTiles ~/ 2;
     int numSpecials = totalPairs ~/ 10; // 10%
     int numHonors = totalPairs ~/ 5;    // 20%
     int numNumbers = totalPairs - numSpecials - numHonors; // 나머지 70%
