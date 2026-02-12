@@ -291,9 +291,9 @@ class _GameScreenState extends State<GameScreen> {
               child: ClipRect(
                 child: InteractiveViewer(
                   constrained: false, // 컨테이너가 화면에 눌리지 않도록 제약 해제 (왜곡 방지)
-                  boundaryMargin: const EdgeInsets.all(200), // 충분한 여분 공간
-                  minScale: 0.1,
-                  maxScale: 2.5,
+                  boundaryMargin: const EdgeInsets.all(1000), // 대폭 확장된 여분 공간 (축소 시 편리함)
+                  minScale: 0.05, // 훨씬 더 작게 축소 가능하도록 확장
+                  maxScale: 3.0,
                   child: Center(
                     child: Container(
                       // 실제 타일 영역(9x12) 고정 규격으로 계산 (110x145 실제 마작패 비율)
