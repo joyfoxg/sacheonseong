@@ -4,46 +4,30 @@ import 'dart:math';
 class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
   // 유니코드 마작 타일 리스트
-  // 1. 수패 (Number Tiles: 만, 통, 삭) - 약 130종 이상
-  static const List<String> numbers = [
-    'b_tile_00_00.png', 'b_tile_00_01.png', 'b_tile_00_03.png', 'b_tile_00_04.png', 'b_tile_00_05.png', 'b_tile_00_06.png', 'b_tile_00_07.png', 'b_tile_00_08.png', 'b_tile_00_10.png', 'b_tile_00_11.png', 'b_tile_00_12.png', 'b_tile_00_13.png',
-    'b_tile_01_00.png', 'b_tile_01_01.png', 'b_tile_01_02.png', 'b_tile_01_03.png', 'b_tile_01_04.png', 'b_tile_01_08.png', 'b_tile_01_09.png', 'b_tile_01_10.png', 'b_tile_01_11.png', 'b_tile_01_12.png', 'b_tile_01_13.png',
-    'b_tile_02_03.png', 'b_tile_02_04.png', 'b_tile_02_05.png', 'b_tile_02_06.png', 'b_tile_02_07.png', 'b_tile_02_08.png', 'b_tile_02_09.png', 'b_tile_02_11.png',
-    'b_tile_04_00.png', 'b_tile_04_01.png', 'b_tile_04_02.png', 'b_tile_04_03.png', 'b_tile_04_07.png', 'b_tile_04_08.png', 'b_tile_04_09.png', 'b_tile_04_10.png', 'b_tile_04_11.png', 'b_tile_04_12.png', 'b_tile_04_13.png',
-    'b_tile_05_00.png', 'b_tile_05_02.png', 'b_tile_05_03.png', 'b_tile_05_04.png', 'b_tile_05_05.png', 'b_tile_05_07.png', 'b_tile_05_09.png', 'b_tile_05_10.png', 'b_tile_05_13.png',
-    'b_tile_06_00.png', 'b_tile_06_01.png', 'b_tile_06_02.png', 'b_tile_06_03.png', 'b_tile_06_04.png', 'b_tile_06_05.png', 'b_tile_06_08.png', 'b_tile_06_09.png', 'b_tile_06_11.png', 'b_tile_06_12.png',
-    'b_tile_07_00.png', 'b_tile_07_01.png', 'b_tile_07_02.png', 'b_tile_07_03.png', 'b_tile_07_04.png', 'b_tile_07_05.png', 'b_tile_07_06.png', 'b_tile_07_07.png', 'b_tile_07_08.png', 'b_tile_07_09.png', 'b_tile_07_10.png', 'b_tile_07_12.png', 'b_tile_07_13.png',
-    'b_tile_08_00.png', 'b_tile_08_01.png', 'b_tile_08_02.png', 'b_tile_08_04.png', 'b_tile_08_07.png', 'b_tile_08_08.png', 'b_tile_08_09.png', 'b_tile_08_12.png', 'b_tile_08_13.png',
-    'b_tile_09_00.png', 'b_tile_09_01.png', 'b_tile_09_02.png', 'b_tile_09_04.png', 'b_tile_09_05.png', 'b_tile_09_06.png', 'b_tile_09_07.png', 'b_tile_09_08.png', 'b_tile_09_09.png', 'b_tile_09_12.png', 'b_tile_09_13.png',
-    'b_tile_10_00.png', 'b_tile_10_01.png', 'b_tile_10_02.png', 'b_tile_10_03.png', 'b_tile_10_04.png', 'b_tile_10_05.png', 'b_tile_10_06.png', 'b_tile_10_08.png', 'b_tile_10_09.png', 'b_tile_10_10.png', 'b_tile_10_11.png',
-  ];
-
-  // 2. 자패 (Honor Tiles: 동남서북, 중발백)
-  static const List<String> honors = [
-    'b_tile_03_03.png', 'b_tile_03_05.png', 'b_tile_03_07.png', 'b_tile_03_08.png', 'b_tile_03_09.png', 'b_tile_03_10.png', 'b_tile_03_11.png', 'b_tile_03_12.png',
-    'd_tile_00_00.png', 'd_tile_00_01.png', 'd_tile_00_02.png', 'd_tile_00_03.png', 'd_tile_00_04.png', 'd_tile_00_05.png', 'd_tile_00_06.png', 'd_tile_00_07.png', 'd_tile_00_08.png', 'd_tile_00_09.png', 'd_tile_00_13.png',
-    'd_tile_01_05.png', 'd_tile_01_06.png', 'd_tile_01_08.png', 'd_tile_01_09.png', 'd_tile_01_10.png', 'd_tile_01_13.png',
-    'd_tile_02_01.png', 'd_tile_02_02.png', 'd_tile_02_03.png', 'd_tile_02_04.png', 'd_tile_02_05.png', 'd_tile_02_06.png', 'd_tile_02_07.png', 'd_tile_02_08.png',
-  ];
-
-  // 3. 특수패 (Special Tiles: 꽃, 계절 및 기타)
-  static const List<String> specials = [
-    'd_tile_03_02.png', 'd_tile_03_05.png', 'd_tile_03_10.png', 'd_tile_03_13.png',
-    'd_tile_04_03.png', 'd_tile_04_04.png', 'd_tile_04_06.png', 'd_tile_04_07.png', 'd_tile_04_08.png',
-    'd_tile_05_07.png', 'd_tile_06_03.png', 'd_tile_06_04.png', 'd_tile_08_05.png', 'd_tile_08_10.png',
-    'd_tile_09_01.png', 'd_tile_09_03.png', 'd_tile_09_04.png', 'd_tile_10_06.png', 'd_tile_10_08.png',
-    'e_tile_00_00.png', 'e_tile_00_01.png', 'e_tile_00_02.png', 'e_tile_00_03.png', 'e_tile_00_04.png', 'e_tile_00_05.png', 'e_tile_00_06.png', 'e_tile_00_07.png', 'e_tile_00_08.png', 'e_tile_00_09.png', 'e_tile_00_10.png', 'e_tile_00_11.png',
-    'e_tile_01_05.png', 'e_tile_01_09.png', 'e_tile_01_10.png', 'e_tile_01_13.png',
-    'e_tile_03_02.png', 'e_tile_03_04.png', 'e_tile_04_13.png', 'e_tile_07_04.png',
-    'e_tile_08_01.png', 'e_tile_08_02.png', 'e_tile_08_03.png', 'e_tile_08_04.png', 'e_tile_08_10.png', 'e_tile_08_13.png',
-    'e_tile_09_00.png', 'e_tile_09_02.png', 'e_tile_09_03.png', 'e_tile_09_04.png', 'e_tile_09_10.png', 'e_tile_09_11.png', 'e_tile_09_12.png', 'e_tile_09_13.png',
-    'e_tile_10_02.png', 'e_tile_10_04.png', 'e_tile_10_10.png',
-    'f_tile_00_00.png', 'f_tile_00_01.png', 'f_tile_00_02.png', 'f_tile_00_03.png', 'f_tile_00_04.png', 'f_tile_00_05.png', 'f_tile_00_06.png', 'f_tile_00_07.png', 'f_tile_00_08.png', 'f_tile_00_09.png', 'f_tile_00_10.png', 'f_tile_00_11.png', 'f_tile_00_12.png', 'f_tile_00_13.png',
-    'f_tile_01_00.png', 'f_tile_01_01.png', 'f_tile_01_06.png', 'f_tile_01_07.png', 'f_tile_01_08.png', 'f_tile_01_09.png', 'f_tile_01_10.png', 'f_tile_01_13.png',
-    'f_tile_02_06.png', 'f_tile_02_07.png', 'f_tile_02_08.png', 'f_tile_02_09.png', 'f_tile_02_10.png', 'f_tile_02_11.png', 'f_tile_02_12.png',
-    'f_tile_03_07.png', 'f_tile_03_08.png', 'f_tile_04_00.png', 'f_tile_04_01.png', 'f_tile_04_06.png', 'f_tile_04_07.png', 'f_tile_04_10.png',
-    'f_tile_05_07.png', 'f_tile_05_08.png', 'f_tile_05_10.png', 'f_tile_06_03.png', 'f_tile_07_07.png', 'f_tile_07_10.png',
-    'f_tile_08_07.png', 'f_tile_08_08.png', 'f_tile_09_07.png', 'f_tile_10_06.png', 'f_tile_10_07.png', 'f_tile_10_08.png', 'f_tile_10_10.png',
+  // 11가지 카테고리 접두사 정의
+  static const List<String> allTileFiles = [
+    // ms: 만수패
+    'ms_tile_00_00.png', 'ms_tile_00_01.png', 'ms_tile_00_02.png', 'ms_tile_00_03.png', 'ms_tile_00_04.png', 'ms_tile_00_05.png', 'ms_tile_00_06.png', 'ms_tile_01_05.png', 'ms_tile_03_02.png', 'ms_tile_03_04.png',
+    // hm: 한자패
+    'hm_tile_01_10.png', 'hm_tile_01_13.png', 'hm_tile_02_10.png', 'hm_tile_07_04.png', 'hm_tile_07_10.png', 'hm_tile_08_01.png', 'hm_tile_08_02.png', 'hm_tile_08_03.png', 'hm_tile_08_04.png', 'hm_tile_09_00.png', 'hm_tile_09_02.png', 'hm_tile_09_03.png', 'hm_tile_09_04.png', 'hm_tile_09_10.png', 'hm_tile_09_12.png', 'hm_tile_10_02.png', 'hm_tile_10_04.png', 'hm_tile_10_10.png',
+    // ss: 삭수패
+    'ss_tile_00_07.png', 'ss_tile_00_08.png', 'ss_tile_00_09.png', 'ss_tile_00_11.png', 'ss_tile_01_07.png', 'ss_tile_01_08.png', 'ss_tile_01_09.png', 'ss_tile_01_13.png', 'ss_tile_02_07.png', 'ss_tile_02_08.png', 'ss_tile_03_08.png', 'ss_tile_04_07.png', 'ss_tile_05_07.png', 'ss_tile_05_08.png', 'ss_tile_08_07.png', 'ss_tile_08_08.png', 'ss_tile_09_07.png', 'ss_tile_10_06.png', 'ss_tile_10_07.png', 'ss_tile_10_08.png',
+    // ts: 통수패
+    'ts_tile_00_00.png', 'ts_tile_00_01.png', 'ts_tile_00_02.png', 'ts_tile_00_03.png', 'ts_tile_00_04.png', 'ts_tile_00_05.png', 'ts_tile_00_06.png', 'ts_tile_01_00.png', 'ts_tile_01_01.png', 'ts_tile_01_06.png', 'ts_tile_02_06.png', 'ts_tile_04_00.png', 'ts_tile_04_01.png', 'ts_tile_04_06.png', 'ts_tile_06_03.png',
+    // sw: 삼원패
+    'sw_tile_00_10.png', 'sw_tile_00_11.png', 'sw_tile_02_12.png', 'sw_tile_04_13.png',
+    // pu: 풍패
+    'pu_tile_00_07.png', 'pu_tile_00_08.png', 'pu_tile_00_09.png', 'pu_tile_01_09.png', 'pu_tile_09_11.png',
+    // fl: 꽃
+    'fl_tile_02_01.png', 'fl_tile_02_02.png', 'fl_tile_02_03.png', 'fl_tile_02_04.png', 'fl_tile_02_05.png', 'fl_tile_02_06.png', 'fl_tile_02_07.png', 'fl_tile_02_08.png', 'fl_tile_02_11.png', 'fl_tile_03_02.png', 'fl_tile_03_05.png', 'fl_tile_03_07.png', 'fl_tile_03_10.png', 'fl_tile_07_07.png',
+    // dm: 동물
+    'dm_tile_00_00.png', 'dm_tile_00_01.png', 'dm_tile_00_02.png', 'dm_tile_00_03.png', 'dm_tile_00_04.png', 'dm_tile_00_05.png', 'dm_tile_00_06.png', 'dm_tile_00_07.png', 'dm_tile_00_08.png', 'dm_tile_00_09.png', 'dm_tile_01_05.png', 'dm_tile_01_06.png', 'dm_tile_01_08.png', 'dm_tile_01_10.png', 'dm_tile_08_05.png', 'dm_tile_08_10.png', 'dm_tile_09_01.png', 'dm_tile_09_03.png', 'dm_tile_09_04.png',
+    // dh: 도형
+    'dh_d_tile_01_09.png', 'dh_d_tile_03_13.png', 'dh_d_tile_04_03.png', 'dh_d_tile_04_04.png', 'dh_d_tile_04_07.png', 'dh_d_tile_04_08.png', 'dh_d_tile_05_07.png', 'dh_d_tile_06_03.png', 'dh_d_tile_06_04.png', 'dh_d_tile_10_06.png', 'dh_d_tile_10_08.png', 'dh_dh_tile_00_06.png', 'dh_dh_tile_00_07.png', 'dh_tile_00_04.png', 'dh_tile_00_05.png', 'dh_tile_00_11.png', 'dh_tile_00_12.png', 'dh_tile_00_13.png', 'dh_tile_01_01.png', 'dh_tile_01_02.png', 'dh_tile_01_03.png', 'dh_tile_01_04.png', 'dh_tile_01_09.png', 'dh_tile_01_10.png', 'dh_tile_01_11.png', 'dh_tile_01_12.png', 'dh_tile_01_13.png', 'dh_tile_02_04.png', 'dh_tile_02_05.png', 'dh_tile_02_06.png', 'dh_tile_02_07.png', 'dh_tile_03_03.png', 'dh_tile_03_05.png', 'dh_tile_03_11.png', 'dh_tile_03_12.png', 'dh_tile_04_00.png', 'dh_tile_04_02.png', 'dh_tile_04_03.png', 'dh_tile_04_07.png', 'dh_tile_04_11.png', 'dh_tile_04_12.png', 'dh_tile_04_13.png', 'dh_tile_05_00.png', 'dh_tile_05_02.png', 'dh_tile_05_03.png', 'dh_tile_05_04.png', 'dh_tile_05_05.png', 'dh_tile_05_13.png', 'dh_tile_06_00.png', 'dh_tile_07_00.png', 'dh_tile_07_03.png', 'dh_tile_07_04.png', 'dh_tile_07_05.png', 'dh_tile_07_06.png', 'dh_tile_07_07.png', 'dh_tile_07_08.png', 'dh_tile_07_09.png', 'dh_tile_07_10.png', 'dh_tile_07_12.png', 'dh_tile_07_13.png', 'dh_tile_08_00.png', 'dh_tile_08_04.png', 'dh_tile_08_07.png', 'dh_tile_08_08.png', 'dh_tile_08_12.png', 'dh_tile_08_13.png', 'dh_tile_09_00.png', 'dh_tile_09_05.png', 'dh_tile_09_07.png', 'dh_tile_09_08.png', 'dh_tile_09_13.png', 'dh_tile_10_00.png', 'dh_tile_10_01.png', 'dh_tile_10_05.png', 'dh_tile_10_09.png', 'dh_tile_10_10.png', 'dh_tile_10_11.png',
+    // sm: 사물
+    'sm_tile_00_08.png', 'sm_tile_00_10.png', 'sm_tile_01_08.png', 'sm_tile_02_08.png', 'sm_tile_02_09.png', 'sm_tile_02_11.png', 'sm_tile_03_07.png', 'sm_tile_03_08.png', 'sm_tile_04_08.png', 'sm_tile_04_09.png', 'sm_tile_04_10.png', 'sm_tile_05_07.png', 'sm_tile_05_09.png', 'sm_tile_05_10.png', 'sm_tile_06_04.png', 'sm_tile_06_05.png', 'sm_tile_06_08.png', 'sm_tile_06_09.png', 'sm_tile_06_11.png', 'sm_tile_06_12.png',
+    // pt: 패턴
+    'pt_tile_00_00.png', 'pt_tile_00_01.png', 'pt_tile_00_03.png', 'pt_tile_01_00.png', 'pt_tile_01_10.png', 'pt_tile_02_03.png', 'pt_tile_04_01.png', 'pt_tile_06_01.png', 'pt_tile_06_02.png', 'pt_tile_06_03.png', 'pt_tile_07_01.png', 'pt_tile_07_02.png', 'pt_tile_08_01.png', 'pt_tile_08_02.png', 'pt_tile_08_13.png', 'pt_tile_09_01.png', 'pt_tile_09_02.png', 'pt_tile_09_04.png', 'pt_tile_09_06.png', 'pt_tile_09_09.png', 'pt_tile_09_12.png', 'pt_tile_09_13.png', 'pt_tile_10_02.png', 'pt_tile_10_03.png', 'pt_tile_10_04.png', 'pt_tile_10_06.png', 'pt_tile_10_08.png',
   ];
 
   final int rows;
@@ -58,25 +42,72 @@ class SichuanLogic {
     List<String> deck = [];
     Random random = Random();
 
-    // 비율 설정: 수패 85%, 자패 12%, 특수패 3% (숫자/한자 비중 극대화)
-    int totalPairs = totalTiles ~/ 2;
-    int numSpecials = (totalPairs * 0.03).toInt().clamp(1, totalPairs); // 3%
-    int numHonors = (totalPairs * 0.12).toInt().clamp(2, totalPairs);   // 12%
-    int numNumbers = totalPairs - numSpecials - numHonors; // 나머지 85%
+    // 카테고리별 초기 분류
+    Map<String, List<String>> categories = {};
+    for (String file in allTileFiles) {
+      String prefix = file.substring(0, 2);
+      categories.putIfAbsent(prefix, () => []).add(file);
+    }
 
-    void addPairsFromList(List<String> list, int count) {
-      if (count <= 0) return;
-      List<String> shuffledList = List.from(list)..shuffle(random);
+    // 비중 설정 (전체 쌍수 기반)
+    int totalPairs = totalTiles ~/ 2;
+    
+    // 필수 패 (수패 + 핵심 자패) 비중 극대화 (약 90%)
+    int numMs = (totalPairs * 0.25).toInt(); // 만수 25%
+    int numSs = (totalPairs * 0.25).toInt(); // 삭수 25%
+    int numTs = (totalPairs * 0.25).toInt(); // 통수 25%
+    int numHm = (totalPairs * 0.10).toInt(); // 한자 10%
+    int numSpecialPures = (totalPairs * 0.08).toInt(); // 삼원패/풍패 8%
+    int numOthers = totalPairs - numMs - numSs - numTs - numHm - numSpecialPures; // 나머지 장식 7%
+    
+    void addPairs(String prefix, int count) {
+      List<String>? list = categories[prefix];
+      if (list == null || list.isEmpty || count <= 0) return;
+      List<String> shuffled = List.from(list)..shuffle(random);
       for (int i = 0; i < count; i++) {
-        String tile = shuffledList[i % shuffledList.length];
+        String tile = shuffled[i % shuffled.length];
         deck.add(tile);
         deck.add(tile);
       }
     }
 
-    addPairsFromList(numbers, numNumbers);
-    addPairsFromList(honors, numHonors);
-    addPairsFromList(specials, numSpecials);
+    addPairs('ms', numMs);
+    addPairs('ss', numSs);
+    addPairs('ts', numTs);
+    addPairs('hm', numHm);
+    
+    // sw, pu 합쳐서 처리
+    List<String> specialPuresList = [...(categories['sw'] ?? []), ...(categories['pu'] ?? [])];
+    if (specialPuresList.isNotEmpty) {
+      specialPuresList.shuffle(random);
+      for (int i = 0; i < numSpecialPures; i++) {
+        String tile = specialPuresList[i % specialPuresList.length];
+        deck.add(tile);
+        deck.add(tile);
+      }
+    }
+
+    // 나머지 장식 패들 (fl, dm, dh, sm, pt) 섞어서 처리
+    List<String> othersList = [
+      ...(categories['fl'] ?? []), ...(categories['dm'] ?? []),
+      ...(categories['dh'] ?? []), ...(categories['sm'] ?? []),
+      ...(categories['pt'] ?? [])
+    ];
+    if (othersList.isNotEmpty && numOthers > 0) {
+      othersList.shuffle(random);
+      for (int i = 0; i < numOthers; i++) {
+        String tile = othersList[i % othersList.length];
+        deck.add(tile);
+        deck.add(tile);
+      }
+    }
+
+    // 혹시라도 totalPairs가 차지 않았다면 부족한 만큼 수패에서 보충
+    while (deck.length < totalTiles) {
+      String tile = categories['ms']![random.nextInt(categories['ms']!.length)];
+      deck.add(tile);
+      deck.add(tile);
+    }
     
     deck.shuffle(random);
 
