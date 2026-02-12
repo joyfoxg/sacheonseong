@@ -296,13 +296,13 @@ class _GameScreenState extends State<GameScreen> {
                   child: Center(
                     child: Container(
                       // 보드 크기를 최적화된 타일 크기에 맞춰 계산
-                      width: cols * 75.0, // 65.0 -> 75.0
-                      height: rows * 95.0, // 75.0 -> 95.0
+                      width: cols * 80.0, // 75.0 -> 80.0
+                      height: rows * 85.0, // 95.0 -> 85.0
                       margin: const EdgeInsets.symmetric(vertical: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          const double tileWidth = 75.0; // 65.0 -> 75.0
-                          const double tileHeight = 95.0; // 75.0 -> 95.0
+                          const double tileWidth = 80.0; // 75.0 -> 80.0
+                          const double tileHeight = 85.0; // 95.0 -> 85.0
                           
                           return Stack(
                             children: [
@@ -378,10 +378,10 @@ class _GameScreenState extends State<GameScreen> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(1),
         child: Padding(
-          padding: const EdgeInsets.all(0.5), // 약간의 내부 마진 복구로 선명도 유지
+          padding: EdgeInsets.zero, // 여백 완전 제거
           child: Image.asset(
             'assets/image/tiles/$content',
-            fit: BoxFit.contain, // 비율 왜곡 방지
+            fit: BoxFit.fill, // 셀에 꽉 차게 렌더링 (여백 제거)
             errorBuilder: (context, error, stackTrace) => Center(
               child: Text(content.contains('_') ? content.split('_').last[0] : '?', style: const TextStyle(fontSize: 8)),
             ),
