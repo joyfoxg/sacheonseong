@@ -4,12 +4,11 @@ import 'dart:math';
 class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
   // 유니코드 마작 타일 리스트
-  // 243종 전체 마작패 리스트 (가져오신 이미지 기반)
-  static const List<String> allTiles = [
+  // 1. 수패 (Number Tiles: 만, 통, 삭) - 약 130종 이상
+  static const List<String> numbers = [
     'b_tile_00_00.png', 'b_tile_00_01.png', 'b_tile_00_03.png', 'b_tile_00_04.png', 'b_tile_00_05.png', 'b_tile_00_06.png', 'b_tile_00_07.png', 'b_tile_00_08.png', 'b_tile_00_10.png', 'b_tile_00_11.png', 'b_tile_00_12.png', 'b_tile_00_13.png',
     'b_tile_01_00.png', 'b_tile_01_01.png', 'b_tile_01_02.png', 'b_tile_01_03.png', 'b_tile_01_04.png', 'b_tile_01_08.png', 'b_tile_01_09.png', 'b_tile_01_10.png', 'b_tile_01_11.png', 'b_tile_01_12.png', 'b_tile_01_13.png',
     'b_tile_02_03.png', 'b_tile_02_04.png', 'b_tile_02_05.png', 'b_tile_02_06.png', 'b_tile_02_07.png', 'b_tile_02_08.png', 'b_tile_02_09.png', 'b_tile_02_11.png',
-    'b_tile_03_03.png', 'b_tile_03_05.png', 'b_tile_03_07.png', 'b_tile_03_08.png', 'b_tile_03_09.png', 'b_tile_03_10.png', 'b_tile_03_11.png', 'b_tile_03_12.png',
     'b_tile_04_00.png', 'b_tile_04_01.png', 'b_tile_04_02.png', 'b_tile_04_03.png', 'b_tile_04_07.png', 'b_tile_04_08.png', 'b_tile_04_09.png', 'b_tile_04_10.png', 'b_tile_04_11.png', 'b_tile_04_12.png', 'b_tile_04_13.png',
     'b_tile_05_00.png', 'b_tile_05_02.png', 'b_tile_05_03.png', 'b_tile_05_04.png', 'b_tile_05_05.png', 'b_tile_05_07.png', 'b_tile_05_09.png', 'b_tile_05_10.png', 'b_tile_05_13.png',
     'b_tile_06_00.png', 'b_tile_06_01.png', 'b_tile_06_02.png', 'b_tile_06_03.png', 'b_tile_06_04.png', 'b_tile_06_05.png', 'b_tile_06_08.png', 'b_tile_06_09.png', 'b_tile_06_11.png', 'b_tile_06_12.png',
@@ -17,9 +16,18 @@ class SichuanLogic {
     'b_tile_08_00.png', 'b_tile_08_01.png', 'b_tile_08_02.png', 'b_tile_08_04.png', 'b_tile_08_07.png', 'b_tile_08_08.png', 'b_tile_08_09.png', 'b_tile_08_12.png', 'b_tile_08_13.png',
     'b_tile_09_00.png', 'b_tile_09_01.png', 'b_tile_09_02.png', 'b_tile_09_04.png', 'b_tile_09_05.png', 'b_tile_09_06.png', 'b_tile_09_07.png', 'b_tile_09_08.png', 'b_tile_09_09.png', 'b_tile_09_12.png', 'b_tile_09_13.png',
     'b_tile_10_00.png', 'b_tile_10_01.png', 'b_tile_10_02.png', 'b_tile_10_03.png', 'b_tile_10_04.png', 'b_tile_10_05.png', 'b_tile_10_06.png', 'b_tile_10_08.png', 'b_tile_10_09.png', 'b_tile_10_10.png', 'b_tile_10_11.png',
+  ];
+
+  // 2. 자패 (Honor Tiles: 동남서북, 중발백)
+  static const List<String> honors = [
+    'b_tile_03_03.png', 'b_tile_03_05.png', 'b_tile_03_07.png', 'b_tile_03_08.png', 'b_tile_03_09.png', 'b_tile_03_10.png', 'b_tile_03_11.png', 'b_tile_03_12.png',
     'd_tile_00_00.png', 'd_tile_00_01.png', 'd_tile_00_02.png', 'd_tile_00_03.png', 'd_tile_00_04.png', 'd_tile_00_05.png', 'd_tile_00_06.png', 'd_tile_00_07.png', 'd_tile_00_08.png', 'd_tile_00_09.png', 'd_tile_00_13.png',
     'd_tile_01_05.png', 'd_tile_01_06.png', 'd_tile_01_08.png', 'd_tile_01_09.png', 'd_tile_01_10.png', 'd_tile_01_13.png',
     'd_tile_02_01.png', 'd_tile_02_02.png', 'd_tile_02_03.png', 'd_tile_02_04.png', 'd_tile_02_05.png', 'd_tile_02_06.png', 'd_tile_02_07.png', 'd_tile_02_08.png',
+  ];
+
+  // 3. 특수패 (Special Tiles: 꽃, 계절 및 기타)
+  static const List<String> specials = [
     'd_tile_03_02.png', 'd_tile_03_05.png', 'd_tile_03_10.png', 'd_tile_03_13.png',
     'd_tile_04_03.png', 'd_tile_04_04.png', 'd_tile_04_06.png', 'd_tile_04_07.png', 'd_tile_04_08.png',
     'd_tile_05_07.png', 'd_tile_06_03.png', 'd_tile_06_04.png', 'd_tile_08_05.png', 'd_tile_08_10.png',
@@ -48,19 +56,25 @@ class SichuanLogic {
     if (totalTiles % 2 != 0) throw Exception("Board size must be even");
 
     List<String> deck = [];
-    int pairs = totalTiles ~/ 2;
-    
-    // 전체 풀에서 무작위로 pairs만큼의 종류를 선택
     Random random = Random();
-    List<String> pool = List.from(allTiles)..shuffle(random);
-    
-    // 타일 랜덤 선택 및 쌍으로 추가
-    for (int i = 0; i < pairs; i++) {
-        // 풀이 모자라면 다시 섞어서 순환 (현재 243종이라 35종 선별 시 충분함)
-        String tile = pool[i % pool.length];
+
+    // 비율 설정: 수패 24쌍(48개), 자패 7쌍(14개), 특수패 4쌍(8개) = 총 35쌍(70개)
+    const int numNumbers = 24;
+    const int numHonors = 7;
+    const int numSpecials = 4;
+
+    void addPairsFromList(List<String> list, int count) {
+      List<String> shuffledList = List.from(list)..shuffle(random);
+      for (int i = 0; i < count; i++) {
+        String tile = shuffledList[i % shuffledList.length];
         deck.add(tile);
         deck.add(tile);
+      }
     }
+
+    addPairsFromList(numbers, numNumbers);
+    addPairsFromList(honors, numHonors);
+    addPairsFromList(specials, numSpecials);
     
     deck.shuffle(random);
 

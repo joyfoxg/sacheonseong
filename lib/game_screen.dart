@@ -285,56 +285,55 @@ class _GameScreenState extends State<GameScreen> {
               ),
               const Divider(height: 1),
 
-            // 게임 보드 (가로/세로 스크롤 가능한 영역)
+            // 게임 보드 (줌 및 가로/세로 스크롤 가능한 영역)
             Expanded(
               flex: 5,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    // 보드 크기를 고정된 타일 크기에 맞춰 계산 (cols: 9, rows: 12)
-                    width: 9 * 65.0, 
-                    height: 12 * 85.0,
-                    margin: const EdgeInsets.symmetric(vertical: 20),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        const double tileWidth = 65.0;
-                        const double tileHeight = 85.0;
-                        
-                        return Stack(
-                          children: [
-                            // 타일 그리드
-                            GridView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 9, // cols
-                                mainAxisExtent: tileHeight,
-                                crossAxisSpacing: 0,
-                                mainAxisSpacing: 0,
-                              ),
-                              itemCount: 12 * 9, // rows * cols
-                              itemBuilder: (context, index) {
-                                return GestureDetector(
-                                  onTap: () => _handleTap(index),
-                                  child: _buildTile(index),
-                                );
-                              },
-                            ),
-                            
-                            // 경로 그리기 (CustomPainter)
-                            if (_selectedPath != null)
-                              IgnorePointer(
-                                child: CustomPaint(
-                                  size: Size(constraints.maxWidth, constraints.maxHeight),
-                                  painter: _PathPainter(_selectedPath!, 9, tileWidth, tileHeight),
+              child: ClipRect(
+                child: InteractiveViewer(
+                  boundaryMargin: const EdgeInsets.all(100), // 보드 밖 여유 공간
+                  minScale: 0.5,
+                  maxScale: 2.5,
+                  child: Center(
+                    child: Container(
+                      // 보드 크기를 고정된 타일 크기에 맞춰 계산 (cols: 9, rows: 12)
+                      width: 9 * 65.0, 
+                      height: 12 * 85.0,
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          const double tileWidth = 65.0;
+                          const double tileHeight = 85.0;
+                          
+                          return Stack(
+                            children: [
+                              // 타일 그리드
+                              GridView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 9, // cols
+                                  mainAxisExtent: tileHeight,
                                 ),
+                                itemCount: 12 * 9, // rows * cols
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () => _handleTap(index),
+                                    child: _buildTile(index),
+                                  );
+                                },
                               ),
-                          ],
-                        );
-                      },
+                              
+                              // 경로 그리기 (CustomPainter)
+                              if (_selectedPath != null)
+                                IgnorePointer(
+                                  child: CustomPaint(
+                                    size: Size(constraints.maxWidth, constraints.maxHeight),
+                                    painter: _PathPainter(_selectedPath!, 9, tileWidth, tileHeight),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
