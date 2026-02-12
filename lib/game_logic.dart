@@ -35,7 +35,7 @@ class SichuanLogic {
   final int cols;
   final Difficulty difficulty;
   
-  SichuanLogic({required this.rows, required this.cols, required this.difficulty = Difficulty.normal});
+  SichuanLogic({required this.rows, required this.cols, this.difficulty = Difficulty.normal});
 
   List<String> generateBoard() {
     int totalTiles = (rows - 2) * (cols - 2);
