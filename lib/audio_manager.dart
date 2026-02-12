@@ -8,14 +8,27 @@ class AudioManager {
 
   final AudioPlayer _bgmPlayer = AudioPlayer();
   final AudioPlayer _sfxPlayer = AudioPlayer();
+  bool _isBgmEnabled = true; // BGM 활성화 여부
+
+  bool get isBgmEnabled => _isBgmEnabled;
 
   Future<void> init() async {
     // 미리 로드하거나 설정할 것이 있으면 여기서 처리
     await _bgmPlayer.setReleaseMode(ReleaseMode.loop);
   }
 
+  Future<void> setBgmEnabled(bool enabled) async {
+    _isBgmEnabled = enabled;
+    if (_isBgmEnabled) {
+      await playBgm();
+    } else {
+      await stopBgm();
+    }
+  }
+
   Future<void> playBgm() async {
     try {
+      if (!_isBgmEnabled) return; // 비활성화 상태면 재생 안 함
       if (_bgmPlayer.state == PlayerState.playing) {
         return; // 이미 재생 중이면 아무것도 안 함
       }

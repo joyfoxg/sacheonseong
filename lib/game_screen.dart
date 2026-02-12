@@ -346,40 +346,39 @@ class _GameScreenState extends State<GameScreen> {
     if (content.isEmpty) return const SizedBox(); // 빈 공간
 
     return Container(
-      margin: const EdgeInsets.all(2),
+      margin: const EdgeInsets.all(1.5),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.orange[100] : const Color(0xFFFFF8E1),
+        color: isSelected ? Colors.orange.withOpacity(0.3) : Colors.white,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: isSelected ? Colors.orange : const Color(0xFF8D6E63),
-          width: isSelected ? 2 : 1,
+          color: isSelected ? Colors.orange : const Color(0xFFD7CCC8),
+          width: isSelected ? 2.5 : 1,
         ),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(1, 1))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            offset: const Offset(1, 1),
+          ),
+          if (isSelected)
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.4),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+        ],
       ),
-      child: Center(
-        child: Text(
-          content,
-          style: TextStyle(
-            fontSize: 24,
-            color: () {
-              if (content.isEmpty) return Colors.black;
-              int code = content.runes.first;
-              
-              // 만수패 (🀇 ~ 🀏): Red
-              if (code >= 0x1F007 && code <= 0x1F00F) {
-                return Colors.red[900];
-              } 
-              // 통수패 (🀐 ~ 🀘): Blue
-              else if (code >= 0x1F010 && code <= 0x1F018) {
-                return Colors.blue[900];
-              } 
-              // 삭수패 (🀙 ~ 🀡): Green
-              else if (code >= 0x1F019 && code <= 0x1F021) {
-                return Colors.green[800];
-              }
-              
-              return Colors.black;
-            }(),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(3),
+        child: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Image.asset(
+            'assets/image/tiles/$content',
+            fit: BoxFit.contain,
+            // 이미지가 로드되지 않을 경우를 대비한 대체 처리 (선택사항)
+            errorBuilder: (context, error, stackTrace) => Center(
+              child: Text(content.split('_').last[0], style: const TextStyle(fontSize: 10)),
+            ),
           ),
         ),
       ),

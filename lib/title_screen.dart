@@ -24,6 +24,39 @@ class _TitleScreenState extends State<TitleScreen> {
     await audioManager.playBgm();
   }
 
+  void _showSettingsDialog() {
+    bool bgmEnabled = AudioManager().isBgmEnabled;
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text("게임 설정"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SwitchListTile(
+                  title: const Text("배경 음악 (BGM)"),
+                  value: bgmEnabled,
+                  onChanged: (value) async {
+                    await AudioManager().setBgmEnabled(value);
+                    setDialogState(() => bgmEnabled = value);
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("닫기"),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +91,9 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
 
-          // 중앙 실시간 랭킹 전광판 (고급형)
+          // 하단 실시간 랭킹 전광판 (고급형)
           const Positioned(
-            top: 150, 
+            top: 280, // 제목 가림 방지를 위해 위치 하향 (기존 150)
             left: 0,
             right: 0,
             child: Center(
@@ -68,12 +101,11 @@ class _TitleScreenState extends State<TitleScreen> {
             ),
           ),
           
-          // 게임 시작 투명 버튼
+          // [PATCH] 게임 시작 버튼 (정밀 위치 조정)
           Positioned(
-            bottom: 50,
+            bottom: 120, // 높이 조정 (기존 50에서 상향)
             left: 0,
             right: 0,
-            height: 150,
             child: Center(
               child: GestureDetector(
                 onTap: () {
@@ -82,9 +114,26 @@ class _TitleScreenState extends State<TitleScreen> {
                   );
                 },
                 child: Container(
-                  width: 300,
-                  height: 100,
-                  color: Colors.transparent,
+                  width: 200,
+                  height: 60,
+                  color: Colors.transparent, // 투명하지만 '게임 시작' 글자 영역만 차지
+                ),
+              ),
+            ),
+          ),
+
+          // [PATCH] 옵션 버튼 (정밀 위치 조정)
+          Positioned(
+            bottom: 40, // 시작 버튼 아래 위치
+            left: 0,
+            right: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: () => _showSettingsDialog(),
+                child: Container(
+                  width: 150,
+                  height: 50,
+                  color: Colors.transparent, // 투명하지만 '옵션' 글자 영역만 차지
                 ),
               ),
             ),

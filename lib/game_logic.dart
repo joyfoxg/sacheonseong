@@ -5,11 +5,14 @@ class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
   // 유니코드 마작 타일 리스트
   static const List<String> tiles = [
-    '🀀', '🀁', '🀂', '🀃', // 동남서북
-    '🀄', '🀅', '🀆', // 중발백
-    '🀇', '🀈', '🀉', '🀊', '🀋', '🀌', '🀍', '🀎', '🀏', // 만수패 1~9
-    '🀐', '🀑', '🀒', '🀓', '🀔', '🀕', '🀖', '🀗', '🀘', // 통수패 1~9
-    '🀙', '🀚', '🀛', '🀜', '🀝', '🀞', '🀟', '🀠', '🀡', // 삭수패 1~9
+    // 만수패 (Characters)
+    'b_tile_00_00.png', 'b_tile_00_01.png', 'b_tile_00_03.png', 'b_tile_00_04.png', 'b_tile_00_05.png', 'b_tile_00_06.png', 'b_tile_00_07.png', 'b_tile_00_08.png', 'b_tile_00_10.png',
+    // 통수패 (Dots)
+    'b_tile_01_00.png', 'b_tile_01_01.png', 'b_tile_01_02.png', 'b_tile_01_03.png', 'b_tile_01_04.png', 'b_tile_01_08.png', 'b_tile_01_09.png', 'b_tile_01_10.png', 'b_tile_01_11.png',
+    // 삭수패 (Bamboos)
+    'b_tile_02_03.png', 'b_tile_02_04.png', 'b_tile_02_05.png', 'b_tile_02_06.png', 'b_tile_02_07.png', 'b_tile_02_08.png', 'b_tile_02_09.png', 'b_tile_02_11.png',
+    // 자패 (Winds/Dragons)
+    'b_tile_03_03.png', 'b_tile_03_05.png', 'b_tile_03_07.png', 'b_tile_03_08.png', 'b_tile_03_09.png', 'b_tile_03_10.png', 'b_tile_03_11.png', 'b_tile_03_12.png',
   ];
 
   final int rows;
