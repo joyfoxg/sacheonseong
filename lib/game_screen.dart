@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 import 'game_logic.dart';
 import 'audio_manager.dart';
 import 'difficulty.dart';
+import 'title_screen.dart';
+import 'leaderboard_service.dart';
+import 'leaderboard_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
