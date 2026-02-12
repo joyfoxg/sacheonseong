@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../leaderboard_service.dart';
 
+import '../difficulty.dart';
+
 class RankingMarquee extends StatefulWidget {
-  const RankingMarquee({super.key});
+  final Difficulty difficulty;
+  const RankingMarquee({super.key, required this.difficulty});
 
   @override
   State<RankingMarquee> createState() => _RankingMarqueeState();
@@ -26,6 +29,14 @@ class _RankingMarqueeState extends State<RankingMarquee> {
     super.initState();
     _loadScores();
     _startFadeCycle(); // 페이드 주기 시작
+  }
+
+  @override
+  void didUpdateWidget(RankingMarquee oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.difficulty != widget.difficulty) {
+      _loadScores();
+    }
   }
 
   // 페이드 인/아웃 주기 제어
@@ -76,7 +87,11 @@ class _RankingMarqueeState extends State<RankingMarquee> {
 
   Future<void> _loadScores() async {
     try {
-      final scores = await _service.getTopScores(limit: 20); // 10개 이상 스크롤을 위해 더 많이 가져옴
+      // 10개 이상 스크롤을 위해 더 많이 가져옴
+      final scores = await _service.getTopScores(
+        limit: 20, 
+        difficulty: widget.difficulty.name,
+      ); 
       if (mounted) {
         setState(() {
           _scores = scores;
