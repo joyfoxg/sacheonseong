@@ -6,6 +6,7 @@ class ScoreEntry {
   final int seconds;
   final String displayTime;
   final DateTime createdAt;
+  final String difficulty;
 
   ScoreEntry({
     required this.id,
@@ -13,6 +14,7 @@ class ScoreEntry {
     required this.seconds,
     required this.displayTime,
     required this.createdAt,
+    required this.difficulty,
   });
 
   factory ScoreEntry.fromFirestore(DocumentSnapshot doc) {
@@ -23,6 +25,7 @@ class ScoreEntry {
       seconds: data['seconds'] ?? 0,
       displayTime: data['displayTime'] ?? '00:00',
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      difficulty: data['difficulty'] ?? 'normal',
     );
   }
 }
@@ -36,12 +39,14 @@ class LeaderboardService {
     required String nickname,
     required int seconds,
     required String displayTime,
+    required String difficulty,
   }) async {
     try {
       await _firestore.collection(_collectionPath).add({
         'nickname': nickname,
         'seconds': seconds,
         'displayTime': displayTime,
+        'difficulty': difficulty,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -51,10 +56,15 @@ class LeaderboardService {
   }
 
   // 상위 n개 기록 가져오기
-  Future<List<ScoreEntry>> getTopScores({int limit = 20}) async {
+  Future<List<ScoreEntry>> getTopScores({int limit = 20, String? difficulty}) async {
     try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection(_collectionPath)
+      Query query = _firestore.collection(_collectionPath);
+
+      if (difficulty != null) {
+        query = query.where('difficulty', isEqualTo: difficulty);
+      }
+
+      QuerySnapshot querySnapshot = await query
           .orderBy('seconds', descending: false) // 시간이 짧은 순서대로
           .orderBy('createdAt', descending: false) // 같은 시간이면 먼저 달성한 순서
           .limit(limit)
