@@ -21,8 +21,8 @@ class _GameScreenState extends State<GameScreen> {
   late SichuanLogic _logic;
   
   // Board dimensions (padding 포함)
-  static const int rows = 12; // 실제 10줄
-  static const int cols = 14; // 실제 12줄 -> 10 * 12 = 120개 타일 (60쌍)
+  static const int rows = 11; // 실제 9줄
+  static const int cols = 14; // 실제 12줄 -> 9 * 12 = 108개 타일 (54쌍)
 
   List<String> _board = [];
   List<int>? _selectedPath;
