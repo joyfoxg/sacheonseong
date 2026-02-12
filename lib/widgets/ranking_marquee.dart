@@ -193,7 +193,6 @@ class _RankingMarqueeState extends State<RankingMarquee> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: Text(
-                      child: Text(
                         "🏆 ${Difficulty.values[_currentDifficultyIndex].label} 랭킹 Top 20",
                         style: TextStyle(
                           color: Colors.amber[100],
