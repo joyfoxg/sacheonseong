@@ -121,9 +121,16 @@ class SichuanLogic {
       }
     }
 
-    // 혹시라도 totalPairs가 차지 않았다면 부족한 만큼 수패에서 보충
+    // 혹시라도 totalPairs가 차지 않았다면 부족한 만큼 현재 풀에서 랜덤 보충
     while (deck.length < totalTiles) {
-      String tile = categories['ms']![random.nextInt(categories['ms']!.length)];
+      String tile;
+      if (activeTiles.isNotEmpty) {
+        tile = activeTiles[random.nextInt(activeTiles.length)];
+      } else {
+        // 비상용 (일어날 수 없음)
+        tile = allTileFiles[random.nextInt(allTileFiles.length)];
+      }
+      
       deck.add(tile);
       deck.add(tile);
     }
