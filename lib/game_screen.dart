@@ -295,29 +295,34 @@ class _GameScreenState extends State<GameScreen> {
                   maxScale: 2.5,
                   child: Center(
                     child: Container(
-                      // 보드 크기를 최적화된 타일 크기에 맞춰 계산
-                      width: cols * 80.0, // 75.0 -> 80.0
-                      height: rows * 85.0, // 95.0 -> 85.0
+                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (110x130 규격)
+                      width: (cols - 2) * 110.0, 
+                      height: (rows - 2) * 130.0, // 9줄 정격 레이아웃
                       margin: const EdgeInsets.symmetric(vertical: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          const double tileWidth = 80.0; // 75.0 -> 80.0
-                          const double tileHeight = 85.0; // 95.0 -> 85.0
+                          const double tileWidth = 110.0;
+                          const double tileHeight = 130.0;
                           
                           return Stack(
                             children: [
-                              // 타일 그리드
+                              // 타일 그리드 (실제 패만 9x12로 명시적 구성)
                               GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: cols,
+                                  crossAxisCount: cols - 2, // 12열
                                   mainAxisExtent: tileHeight,
                                 ),
-                                itemCount: rows * cols,
+                                itemCount: (rows - 2) * (cols - 2), // 9 * 12 = 108개
                                 itemBuilder: (context, index) {
+                                  // 실제 데이터 인덱스 매핑 (패딩 행/열 제외)
+                                  int r = index ~/ (cols - 2) + 1; // 1 ~ 9
+                                  int c = index % (cols - 2) + 1;  // 1 ~ 12
+                                  int boardIndex = r * cols + c;   // 14*r + c
+                                  
                                   return GestureDetector(
-                                    onTap: () => _handleTap(index),
-                                    child: _buildTile(index),
+                                    onTap: () => _handleTap(boardIndex),
+                                    child: _buildTile(boardIndex),
                                   );
                                 },
                               ),
@@ -679,7 +684,8 @@ class _PathPainter extends CustomPainter {
     Offset getCenter(int index) {
       int r = index ~/ cols;
       int c = index % cols;
-      return Offset((c + 0.5) * tileWidth, (r + 0.5) * tileHeight);
+      // index는 패딩 포함 인덱스이므로 9x12 캔버스 좌표를 위해 -1 오프셋 적용
+      return Offset((c - 1 + 0.5) * tileWidth, (r - 1 + 0.5) * tileHeight);
     }
 
     drawPath.moveTo(getCenter(path[0]).dx, getCenter(path[0]).dy);
