@@ -21,8 +21,8 @@ class _GameScreenState extends State<GameScreen> {
   late SichuanLogic _logic;
   
   // Board dimensions (padding 포함)
-  static const int rows = 11; // 실제 9줄
-  static const int cols = 14; // 실제 12줄 -> 9 * 12 = 108개 타일 (54쌍)
+  static const int rows = 13; // 실제 11줄
+  static const int cols = 12; // 실제 10줄 -> 11 * 10 = 110개 타일 (55쌍)
 
   List<String> _board = [];
   List<int>? _selectedPath;
@@ -42,6 +42,9 @@ class _GameScreenState extends State<GameScreen> {
 
   Timer? _pathClearTimer;
 
+  final TransformationController _transformationController = TransformationController();
+  final GlobalKey _boardKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +53,37 @@ class _GameScreenState extends State<GameScreen> {
     _logic = SichuanLogic(rows: rows, cols: cols);
     // BGM is started in TitleScreen
     _startGame();
+    
+    // 첫 프레임 렌더링 후 보드 크기를 화면에 최적으로 맞춤
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fitBoardToScreen());
+  }
+
+  void _fitBoardToScreen() {
+    if (!mounted) return;
+    
+    // 현재 위젯의 실제 렌더링 크기 가져오기
+    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    
+    final Size screenSize = renderBox.size;
+    if (screenSize.width == 0 || screenSize.height == 0) return;
+
+    // 보드의 실제 픽셀 크기 계산 (11x10 기준)
+    const double boardWidth = (cols - 2) * 110.0;
+    const double boardHeight = (rows - 2) * 145.0;
+
+    // 가로/세로 중 더 제한적인 쪽에 맞춰 scale 계산
+    double scaleX = (screenSize.width - 40) / boardWidth;
+    double scaleY = (screenSize.height - 120) / boardHeight; 
+    double scale = (scaleX < scaleY ? scaleX : scaleY).clamp(0.05, 2.5);
+
+    // 화면 중앙 정렬을 위한 offset 계산
+    double xOffset = (screenSize.width - boardWidth * scale) / 2;
+    double yOffset = (screenSize.height - boardHeight * scale) / 2;
+
+    _transformationController.value = Matrix4.identity()
+      ..translate(xOffset, yOffset)
+      ..scale(scale);
   }
 
   void _startGame() {
@@ -171,6 +205,7 @@ class _GameScreenState extends State<GameScreen> {
     _pathClearTimer?.cancel();
     _timer?.cancel();
     _stopwatch.stop();
+    _transformationController.dispose();
     // BGM은 TitleScreen과 공유하므로 여기서 멈추지 않음
     super.dispose();
   }
@@ -290,13 +325,15 @@ class _GameScreenState extends State<GameScreen> {
               flex: 5,
               child: ClipRect(
                 child: InteractiveViewer(
+                  transformationController: _transformationController,
                   constrained: false, // 컨테이너가 화면에 눌리지 않도록 제약 해제 (왜곡 방지)
-                  boundaryMargin: const EdgeInsets.all(1000), // 대폭 확장된 여분 공간 (축소 시 편리함)
-                  minScale: 0.05, // 훨씬 더 작게 축소 가능하도록 확장
+                  boundaryMargin: const EdgeInsets.all(1000), // 대폭 확장된 여분 공간
+                  minScale: 0.05, 
                   maxScale: 3.0,
                   child: Center(
                     child: Container(
-                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (110x145 실제 마작패 비율)
+                      key: _boardKey,
+                      // 실제 타일 영역(11x10) 고정 규격으로 계산 (110x145 비율)
                       width: (cols - 2) * 110.0, 
                       height: (rows - 2) * 145.0, 
                       margin: const EdgeInsets.symmetric(vertical: 40),
@@ -307,19 +344,19 @@ class _GameScreenState extends State<GameScreen> {
                           
                           return Stack(
                             children: [
-                              // 타일 그리드 (실제 패만 9x12로 명시적 구성)
+                              // 타일 그리드 (실제 패만 명시적 구성)
                               GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: cols - 2, // 12열
+                                  crossAxisCount: cols - 2, // 10열
                                   mainAxisExtent: tileHeight,
                                 ),
-                                itemCount: (rows - 2) * (cols - 2), // 9 * 12 = 108개
+                                itemCount: (rows - 2) * (cols - 2), // 11 * 10 = 110개
                                 itemBuilder: (context, index) {
                                   // 실제 데이터 인덱스 매핑 (패딩 행/열 제외)
-                                  int r = index ~/ (cols - 2) + 1; // 1 ~ 9
-                                  int c = index % (cols - 2) + 1;  // 1 ~ 12
-                                  int boardIndex = r * cols + c;   // 14*r + c
+                                  int r = index ~/ (cols - 2) + 1; // 1 ~ 11
+                                  int c = index % (cols - 2) + 1;  // 1 ~ 10
+                                  int boardIndex = r * cols + c;   // 12*r + c
                                   
                                   return GestureDetector(
                                     onTap: () => _handleTap(boardIndex),
