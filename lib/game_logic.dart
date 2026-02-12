@@ -122,12 +122,17 @@ class SichuanLogic {
     }
 
     // 혹시라도 totalPairs가 차지 않았다면 부족한 만큼 현재 풀에서 랜덤 보충
+    // 남은 공간을 짝패로 정확히 채움
     while (deck.length < totalTiles) {
+      // 공간이 2개 미만으로 남았는데 루프가 돌면 안됨 (totalTiles는 짝수이므로 이론상 발생 안 함)
+      // 하지만 안전을 위해 체크
+      if (totalTiles - deck.length < 2) break;
+
       String tile;
       if (activeTiles.isNotEmpty) {
         tile = activeTiles[random.nextInt(activeTiles.length)];
       } else {
-        // 비상용 (일어날 수 없음)
+        // 비상용
         tile = allTileFiles[random.nextInt(allTileFiles.length)];
       }
       
