@@ -58,12 +58,14 @@ class SichuanLogic {
     List<String> deck = [];
     Random random = Random();
 
-    // 비율 설정: 수패 24쌍(48개), 자패 7쌍(14개), 특수패 4쌍(8개) = 총 35쌍(70개)
-    const int numNumbers = 24;
-    const int numHonors = 7;
-    const int numSpecials = 4;
+    // 비율 설정: 수패 70%, 자패 20%, 특수패 10% 기반 동적 계산
+    int totalPairs = pairs;
+    int numSpecials = totalPairs ~/ 10; // 10%
+    int numHonors = totalPairs ~/ 5;    // 20%
+    int numNumbers = totalPairs - numSpecials - numHonors; // 나머지 70%
 
     void addPairsFromList(List<String> list, int count) {
+      if (count <= 0) return;
       List<String> shuffledList = List.from(list)..shuffle(random);
       for (int i = 0; i < count; i++) {
         String tile = shuffledList[i % shuffledList.length];

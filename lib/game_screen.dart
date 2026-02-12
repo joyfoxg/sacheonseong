@@ -21,8 +21,8 @@ class _GameScreenState extends State<GameScreen> {
   late SichuanLogic _logic;
   
   // Board dimensions (padding 포함)
-  static const int rows = 12; // 실제 10줄
-  static const int cols = 9;  // 실제 7줄 -> 70개 타일 (35쌍)
+  static const int rows = 20; // 실제 18줄
+  static const int cols = 14; // 실제 12줄 -> 18 * 12 = 216개 타일 (108쌍)
 
   List<String> _board = [];
   List<int>? _selectedPath;
@@ -295,9 +295,9 @@ class _GameScreenState extends State<GameScreen> {
                   maxScale: 2.5,
                   child: Center(
                     child: Container(
-                      // 보드 크기를 고정된 타일 크기에 맞춰 계산 (cols: 9, rows: 12)
-                      width: 9 * 65.0, 
-                      height: 12 * 85.0,
+                      // 보드 크기를 고정된 타일 크기에 맞춰 계산
+                      width: cols * 65.0, 
+                      height: rows * 85.0,
                       margin: const EdgeInsets.symmetric(vertical: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
@@ -310,10 +310,10 @@ class _GameScreenState extends State<GameScreen> {
                               GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 9, // cols
+                                  crossAxisCount: cols,
                                   mainAxisExtent: tileHeight,
                                 ),
-                                itemCount: 12 * 9, // rows * cols
+                                itemCount: rows * cols,
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () => _handleTap(index),
@@ -327,7 +327,7 @@ class _GameScreenState extends State<GameScreen> {
                                 IgnorePointer(
                                   child: CustomPaint(
                                     size: Size(constraints.maxWidth, constraints.maxHeight),
-                                    painter: _PathPainter(_selectedPath!, 9, tileWidth, tileHeight),
+                                    painter: _PathPainter(_selectedPath!, cols, tileWidth, tileHeight),
                                   ),
                                 ),
                             ],
@@ -353,38 +353,37 @@ class _GameScreenState extends State<GameScreen> {
     if (content.isEmpty) return const SizedBox(); // 빈 공간
 
     return Container(
-      margin: const EdgeInsets.all(1.5),
+      margin: const EdgeInsets.all(0.3), // 여백 극소화
       decoration: BoxDecoration(
         color: isSelected ? Colors.orange.withOpacity(0.3) : Colors.white,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(2),
         border: Border.all(
           color: isSelected ? Colors.orange : const Color(0xFFD7CCC8),
-          width: isSelected ? 2.5 : 1,
+          width: isSelected ? 2.0 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            offset: const Offset(1, 1),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 1,
+            offset: const Offset(0.3, 0.3),
           ),
           if (isSelected)
             BoxShadow(
               color: Colors.orange.withOpacity(0.4),
-              blurRadius: 8,
+              blurRadius: 6,
               spreadRadius: 1,
             ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.circular(1.5),
         child: Padding(
-          padding: const EdgeInsets.all(2.0),
+          padding: const EdgeInsets.all(0.1), // 내부 여백 거의 제거
           child: Image.asset(
             'assets/image/tiles/$content',
             fit: BoxFit.contain,
-            // 이미지가 로드되지 않을 경우를 대비한 대체 처리 (선택사항)
             errorBuilder: (context, error, stackTrace) => Center(
-              child: Text(content.split('_').last[0], style: const TextStyle(fontSize: 10)),
+              child: Text(content.contains('_') ? content.split('_').last[0] : '?', style: const TextStyle(fontSize: 8)),
             ),
           ),
         ),
