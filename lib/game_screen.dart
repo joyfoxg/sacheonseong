@@ -290,18 +290,19 @@ class _GameScreenState extends State<GameScreen> {
               flex: 5,
               child: ClipRect(
                 child: InteractiveViewer(
-                  boundaryMargin: const EdgeInsets.all(100), // 보드 밖 여유 공간
-                  minScale: 0.5,
+                  constrained: false, // 컨테이너가 화면에 눌리지 않도록 제약 해제 (왜곡 방지)
+                  boundaryMargin: const EdgeInsets.all(200), // 충분한 여분 공간
+                  minScale: 0.1,
                   maxScale: 2.5,
                   child: Center(
                     child: Container(
-                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (110x130 규격)
-                      width: (cols - 2) * 110.0, 
-                      height: (rows - 2) * 130.0, // 9줄 정격 레이아웃
-                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      // 실제 타일 영역(9x12) 고정 규격으로 계산 (150x130 광폭 규격)
+                      width: (cols - 2) * 150.0, 
+                      height: (rows - 2) * 130.0, 
+                      margin: const EdgeInsets.symmetric(vertical: 40),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          const double tileWidth = 110.0;
+                          const double tileWidth = 150.0;
                           const double tileHeight = 130.0;
                           
                           return Stack(
