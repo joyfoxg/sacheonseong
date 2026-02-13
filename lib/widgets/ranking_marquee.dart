@@ -35,7 +35,7 @@ class _RankingMarqueeState extends State<RankingMarquee> {
   // 페이드 인/아웃 주기 제어
   void _startFadeCycle() {
     _fadeTimer?.cancel();
-    _fadeTimer = Timer.periodic(const Duration(seconds: 13), (timer) async {
+    _fadeTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       if (!mounted || _isUserInteracting) return;
       
       // 1. 5초 대기 (보여줌) - 기존 7초에서 단축
@@ -45,7 +45,7 @@ class _RankingMarqueeState extends State<RankingMarquee> {
       // 2. 스르르 사라짐 (2초 소요)
       setState(() => _opacity = 0.0);
       
-      // 3. 사라진 상태로 4초 대기 (이때 데이터 교체)
+      // 3. 사라진 상태로 1초 대기 (이때 데이터 교체)
       await Future.delayed(const Duration(seconds: 2)); // 완전히 사라질 때까지 대기 (Duration(seconds: 2)와 동일하게)
       
       if (!mounted || _isUserInteracting) return;
@@ -57,8 +57,7 @@ class _RankingMarqueeState extends State<RankingMarquee> {
       });
       await _loadScores();
 
-      // 나머지 대기 시간 (총 4초 대기 중 2초 지났고, 데이터 로드 시간 고려하여 2초 더 대기)
-      await Future.delayed(const Duration(seconds: 2));
+      // 추가 대기 없이 바로 나타남 (사용자 요청: 사라지고 1초 후 다시 나타남)
       if (!mounted || _isUserInteracting) return;
       
       // 4. 다시 스르르 나타남 (2초 소요)
