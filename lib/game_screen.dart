@@ -543,18 +543,23 @@ class _GameScreenState extends State<GameScreen> {
         HapticFeedback.mediumImpact();
         _audioManager.playSuccess();
         
+        // CRITICAL: 타이머 실행 전에 인덱스를 로컬 변수로 캡처 (Race Condition 방지)
+        final int firstIndex = _selectedIndex;
+        final int secondIndex = index;
+        
         setState(() {
           _selectedPath = path; // 경로 표시
+          
+          // CRITICAL: 즉시 선택 해제 (빠른 연속 터치 시 다른 타일이 제거되는 버그 방지)
+          _selectedIndex = -1;
+          
           // 타일 제거 (잠시 보여주고 제거)
-          String matchedTile = _board[_selectedIndex];
-          // 즉시 제거하지 않고 타이머로 시각적 효과
           _pathClearTimer?.cancel();
           _pathClearTimer = Timer(const Duration(milliseconds: 300), () {
              if (!mounted) return;
              setState(() {
-               _board[_selectedIndex] = '';
-               _board[index] = '';
-               _selectedIndex = -1;
+               _board[firstIndex] = '';
+               _board[secondIndex] = '';
                _selectedPath = null;
                
                // 남은 패 체크
