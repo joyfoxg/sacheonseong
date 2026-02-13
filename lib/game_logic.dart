@@ -54,7 +54,7 @@ class SichuanLogic {
     } else if (difficulty == Difficulty.normal) {
       poolSize = 45; // 종류를 45개로 제한 -> 55쌍 / 45종 = 평균 1.2쌍
     } else {
-      poolSize = pool.length; // 전체 사용
+      poolSize = 70; // 고급 난이도 완화: 전체 대신 70종으로 제한 (기존: pool.length)
     }
     
     // 풀 크기만큼 자르기 (단, 최소한의 갯수는 보장되어야 함)

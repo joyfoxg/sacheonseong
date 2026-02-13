@@ -72,12 +72,12 @@ class _GameScreenState extends State<GameScreen> {
       case Difficulty.normal:
         _hintCount = 3;
         _shuffleCount = 3;
-        _timeLimitSeconds = 600; // 10분
+        _timeLimitSeconds = null; // 무제한 (기존 10분 제한 제거)
         break;
       case Difficulty.hard:
         _hintCount = 1;
         _shuffleCount = 1;
-        _timeLimitSeconds = 300; // 5분
+        _timeLimitSeconds = null; // 무제한 (기존 5분 제한 제거)
         break;
     }
   }
