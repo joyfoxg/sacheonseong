@@ -3,6 +3,7 @@ import 'game_screen.dart';
 import 'audio_manager.dart';
 import 'leaderboard_screen.dart';
 import 'widgets/ranking_marquee.dart';
+import 'widgets/settings_dialog.dart';
 import 'difficulty.dart';
 
 class TitleScreen extends StatefulWidget {
@@ -28,96 +29,9 @@ class _TitleScreenState extends State<TitleScreen> {
   Difficulty _difficulty = Difficulty.normal;
 
   void _showSettingsDialog() {
-    bool bgmEnabled = AudioManager().isBgmEnabled;
-
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            backgroundColor: const Color(0xFFFDFCFB),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: const Text("게임 설정", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // BGM 설정
-                const Text("사운드", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                SwitchListTile(
-                  title: const Text("배경음악"),
-                  secondary: Icon(bgmEnabled ? Icons.music_note : Icons.music_off, color: Colors.brown),
-                  value: bgmEnabled,
-                  activeColor: Colors.brown,
-                  onChanged: (value) async {
-                    await AudioManager().setBgmEnabled(value);
-                    if (value) {
-                      await AudioManager().playBgm();
-                    } else {
-                      await AudioManager().stopBgm();
-                    }
-                    setDialogState(() => bgmEnabled = value);
-                  },
-                ),
-                const Divider(),
-                const SizedBox(height: 8),
-
-                // 난이도 설정
-                const Text("난이도", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<Difficulty>(
-                      value: _difficulty,
-                      isExpanded: true,
-                      icon: const Icon(Icons.arrow_drop_down, color: Colors.brown),
-                      items: Difficulty.values.map((Difficulty value) {
-                        return DropdownMenuItem<Difficulty>(
-                          value: value,
-                          child: Row(
-                            children: [
-                              Icon(
-                                value == Difficulty.easy ? Icons.sentiment_satisfied_alt :
-                                value == Difficulty.normal ? Icons.sentiment_neutral :
-                                Icons.sentiment_very_dissatisfied,
-                                color: value == Difficulty.easy ? Colors.green :
-                                       value == Difficulty.normal ? Colors.blue :
-                                       Colors.red,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(value.label, style: const TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (Difficulty? newValue) {
-                        if (newValue != null) {
-                          // 다이얼로그 상태와 메인 화면 상태 모두 업데이트
-                          setDialogState(() => _difficulty = newValue);
-                          this.setState(() => _difficulty = newValue);
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("닫기", style: TextStyle(color: Colors.brown, fontWeight: FontWeight.bold)),
-              ),
-            ],
-          );
-        },
-      ),
+      builder: (context) => const SettingsDialog(),
     );
   }
 
