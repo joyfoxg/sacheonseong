@@ -14,7 +14,7 @@ class SichuanLogic {
     // ss: 삭수패
     'ss_tile_00_07.png', 'ss_tile_00_09.png', 'ss_tile_00_11.png', 'ss_tile_01_07.png', 'ss_tile_01_08.png', 'ss_tile_01_09.png', 'ss_tile_01_13.png', 'ss_tile_02_07.png', 'ss_tile_02_08.png', 'ss_tile_03_08.png', 'ss_tile_04_07.png', 'ss_tile_05_07.png', 'ss_tile_05_08.png', 'ss_tile_08_07.png', 'ss_tile_08_08.png', 'ss_tile_09_07.png', 'ss_tile_10_06.png', 'ss_tile_10_07.png', 'ss_tile_10_08.png',
     // ts: 통수패
-    'ts_tile_00_00.png', 'ts_tile_00_01.png', 'ts_tile_00_02.png', 'ts_tile_00_03.png', 'ts_tile_00_04.png', 'ts_tile_00_05.png', 'ts_tile_00_06.png', 'ts_tile_01_00.png', 'ts_tile_01_01.png', 'ts_tile_01_06.png', 'ts_tile_02_06.png', 'ts_tile_04_00.png', 'ts_tile_04_01.png', 'ts_tile_04_06.png', 'ts_tile_06_03.png',
+    'ts_tile_00_06.png', 'ts_tile_01_00.png', 'ts_tile_01_01.png', 'ts_tile_01_06.png', 'ts_tile_02_06.png', 'ts_tile_04_00.png', 'ts_tile_04_01.png', 'ts_tile_04_06.png', 'ts_tile_06_03.png',
     // sw: 삼원패
     'sw_tile_00_10.png', 'sw_tile_00_11.png', 'sw_tile_02_12.png', 'sw_tile_04_13.png',
     // pu: 풍패
