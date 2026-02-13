@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'game_screen.dart';
 import 'audio_manager.dart';
 import 'leaderboard_screen.dart';
@@ -14,16 +15,26 @@ class TitleScreen extends StatefulWidget {
 }
 
 class _TitleScreenState extends State<TitleScreen> {
+  String _version = '';
+  
   @override
   void initState() {
     super.initState();
     _startBgm();
+    _loadVersion();
   }
 
   void _startBgm() async {
     final audioManager = AudioManager();
     await audioManager.init();
     await audioManager.playBgm();
+  }
+
+  void _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = 'v${packageInfo.version}+${packageInfo.buildNumber}';
+    });
   }
 
   Difficulty _difficulty = Difficulty.normal;
@@ -114,6 +125,30 @@ class _TitleScreenState extends State<TitleScreen> {
                   width: 150,
                   height: 50,
                   color: Colors.transparent, // 투명 버튼 (배경 이미지의 Option 텍스트 활용)
+                ),
+              ),
+            ),
+          ),
+
+          // 버전 정보 표시 (옵션 버튼 하단)
+          Positioned(
+            bottom: 10,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                _version,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.5),
+                      offset: const Offset(1, 1),
+                      blurRadius: 2,
+                    ),
+                  ],
                 ),
               ),
             ),
