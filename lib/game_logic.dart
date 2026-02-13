@@ -123,11 +123,8 @@ class SichuanLogic {
 
     // 혹시라도 totalPairs가 차지 않았다면 부족한 만큼 현재 풀에서 랜덤 보충
     // 남은 공간을 짝패로 정확히 채움
-    while (deck.length < totalTiles) {
-      // 공간이 2개 미만으로 남았는데 루프가 돌면 안됨 (totalTiles는 짝수이므로 이론상 발생 안 함)
-      // 하지만 안전을 위해 체크
-      if (totalTiles - deck.length < 2) break;
-
+    // 주의: 항상 2개(한 쌍)씩 추가하므로 deck.length + 2 <= totalTiles 조건 사용
+    while (deck.length + 2 <= totalTiles) {
       String tile;
       if (activeTiles.isNotEmpty) {
         tile = activeTiles[random.nextInt(activeTiles.length)];
@@ -138,6 +135,13 @@ class SichuanLogic {
       
       deck.add(tile);
       deck.add(tile);
+    }
+    
+    // 최종 검증: deck 길이가 totalTiles와 정확히 일치하고 짝수인지 확인
+    if (deck.length != totalTiles) {
+      print("WARNING: Generated ${deck.length} tiles but expected $totalTiles - regenerating");
+      // 혹시 1개 부족하거나 초과하면 재생성
+      return generateBoard();
     }
     
     deck.shuffle(random);
