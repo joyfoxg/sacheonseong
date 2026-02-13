@@ -50,17 +50,17 @@ class _RankingMarqueeState extends State<RankingMarquee> {
       
       if (!mounted || _isUserInteracting) return;
       
-      // 다음 난이도로 변경 및 데이터 로드
-      setState(() {
-        _currentDifficultyIndex = (_currentDifficultyIndex + 1) % Difficulty.values.length;
-        _isLoading = true; // 로딩 상태 잠깐 표시 (깜빡임 방지)
-      });
+      // 다음 난이도로 변경 및 데이터 로드 (opacity는 0 유지)
+      _currentDifficultyIndex = (_currentDifficultyIndex + 1) % Difficulty.values.length;
+      _isLoading = true;
       await _loadScores();
 
       // 추가 대기 없이 바로 나타남 (사용자 요청: 사라지고 1초 후 다시 나타남)
       if (!mounted || _isUserInteracting) return;
       
-      // 4. 다시 스르르 나타남 (2초 소요)
+      // 4. 다시 스르르 나타남 (2초 소요) - setState를 한 프레임 지연시켜 AnimatedOpacity가 작동하게 함
+      await Future.delayed(const Duration(milliseconds: 50));
+      if (!mounted || _isUserInteracting) return;
       setState(() => _opacity = 1.0);
     });
   }
