@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="sacheonseong_game"
+        android:label="사천성(四川省)"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
