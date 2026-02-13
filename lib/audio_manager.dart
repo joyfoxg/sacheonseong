@@ -24,6 +24,24 @@ class AudioManager {
     _bgmVolume = prefs.getDouble('bgm_volume') ?? 0.7;
     _sfxVolume = prefs.getDouble('sfx_volume') ?? 1.0;
     
+    // 안드로이드 12 이상에서 효과음 재생 시 BGM이 멈추는 문제 해결
+    // AudioContext 설정으로 오디오 포커스를 받지 않도록 함
+    await _bgmPlayer.setAudioContext(
+      AudioContext(
+        iOS: AudioContextIOS(
+          category: AVAudioSessionCategory.playback,
+          options: [AVAudioSessionOptions.mixWithOthers],
+        ),
+        android: AudioContextAndroid(
+          isSpeakerphoneOn: false,
+          stayAwake: false,
+          contentType: AndroidContentType.music,
+          usageType: AndroidUsageType.game,
+          audioFocus: AndroidAudioFocus.none, // 포커스를 받지 않음 (중요!)
+        ),
+      ),
+    );
+    
     await _bgmPlayer.setReleaseMode(ReleaseMode.loop);
     await _bgmPlayer.setVolume(_bgmVolume);
     await _sfxPlayer.setVolume(_sfxVolume);
