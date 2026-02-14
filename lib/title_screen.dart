@@ -42,7 +42,12 @@ class _TitleScreenState extends State<TitleScreen> {
   void _showSettingsDialog() {
     showDialog(
       context: context,
-      builder: (context) => const SettingsDialog(),
+      builder: (context) => SettingsDialog(
+        currentDifficulty: _difficulty,
+        onDifficultyChanged: (newDifficulty) {
+          setState(() => _difficulty = newDifficulty);
+        },
+      ),
     );
   }
 
