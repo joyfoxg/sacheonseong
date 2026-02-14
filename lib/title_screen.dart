@@ -71,7 +71,7 @@ class _TitleScreenState extends State<TitleScreen> {
                   },
                   child: Image.asset(
                     'assets/image/title.jpg',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill, // 화면 비율에 맞게 늘려서 텍스트 위치 일관성 유지
                   ),
                 ),
               ),
