@@ -48,16 +48,16 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     
     // 타일 수에 따라 그리드 크기 최적화 (타일 크기 최대화)
     if (_config.tileCount <= 40) {
-      _cols = 6;  // 2배 확대 효과
-      _rows = 14; // 여유 공간 확보
+      _cols = 5;  // 가로 5열
+      _rows = 14; 
     } else if (_config.tileCount <= 60) {
-      _cols = 8;
+      _cols = 6;
       _rows = 14;
     } else if (_config.tileCount <= 80) {
-      _cols = 10;
+      _cols = 8;
       _rows = 14;
     } else {
-      _cols = 12;
+      _cols = 10;
       _rows = 14;
     }
 
@@ -485,7 +485,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(4), // 패딩 대폭 축소 (20 -> 4)
+          padding: const EdgeInsets.all(40), // 타일 크기 30% 축소를 위해 패딩 대폭 증가 (4 -> 40)
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: _cols, // 동적 컬럼 수 사용 (40타일 -> 6열)
             crossAxisSpacing: 2,
