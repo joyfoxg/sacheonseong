@@ -198,8 +198,17 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
                   '$stage',
                   style: TextStyle(
                     color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.15),
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 28, // 26 -> 28
+                    fontWeight: FontWeight.w900, // bold -> w900
+                    shadows: isUnlocked
+                        ? [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              offset: const Offset(1, 1),
+                              blurRadius: 2,
+                            ),
+                          ]
+                        : null,
                   ),
                 ),
                 if (!isUnlocked)
