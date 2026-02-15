@@ -508,14 +508,19 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
             width: isSelected ? 3 : 1,
           ),
         ),
-        child: tile.startsWith('assets/')
-            ? Image.asset(tile, fit: BoxFit.contain)
-            : Center(
-                child: Text(
-                  tile,
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
-                ),
+        child: Image.asset(
+          'assets/image/tiles/$tile',
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(
+              child: Text(
+                tile,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+                textAlign: TextAlign.center,
               ),
+            );
+          },
+        ),
       ),
     );
   }
