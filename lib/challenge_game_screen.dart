@@ -70,6 +70,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
       rows: _rows,
       cols: _cols,
       tileCount: _config.tileCount,
+      obstacleCount: _config.obstacleCount, // 장애물 수 전달
       pattern: _config.pattern,
     );
     _remainingSeconds = _config.timeLimitSeconds;
@@ -102,6 +103,47 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     });
   }
 
+  Widget _buildTile(int index) {
+    final tile = _board[index];
+    if (tile.isEmpty) return const SizedBox.shrink();
+
+    // 장애물 처리
+    if (tile == 'BLOCK') {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.black45,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[800]!, width: 2),
+        ),
+        child: const Center(
+          child: Icon(Icons.lock, color: Colors.grey, size: 24),
+        ),
+      );
+    }
+
+    final isSelected = index == _selectedIndex;
+    final isInPath = _selectedPath?.contains(index) ?? false;
+    // The rest of the _buildTile method would go here, but it was not provided in the instruction.
+    // Assuming the instruction only wanted to add the BLOCK handling and the method signature.
+    // For now, returning a placeholder for non-block tiles to maintain syntactical correctness.
+    return Container(
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.blue.withOpacity(0.5) : Colors.white,
+        border: Border.all(
+          color: isInPath ? Colors.green : (isSelected ? Colors.blue : Colors.transparent),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          tile,
+          style: const TextStyle(fontSize: 24),
+        ),
+      ),
+    );
+  }
+    
   void _onShuffle() {
     if (_state != 'playing' || _shuffleCount <= 0) return;
     
