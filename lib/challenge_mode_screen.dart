@@ -65,7 +65,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 최소화
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 8 -> 4 최소화
       child: Row(
         children: [
           IconButton(
@@ -88,7 +88,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildStageGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), // 상단 패딩 0으로
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: 10,
