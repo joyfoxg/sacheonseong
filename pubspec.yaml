@@ -1,7 +1,7 @@
 name: sacheonseong_game
 description: "A standalone Sacheonseong game project."
 publish_to: 'none'
-version: 1.1.0+52
+version: 1.2.0+62
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
