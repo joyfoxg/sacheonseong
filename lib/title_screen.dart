@@ -6,6 +6,7 @@ import 'leaderboard_screen.dart';
 import 'widgets/ranking_marquee.dart';
 import 'widgets/settings_dialog.dart';
 import 'difficulty.dart';
+import 'challenge_mode_screen.dart'; // 챌린지 모드 화면
 
 class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
@@ -48,13 +49,9 @@ class _TitleScreenState extends State<TitleScreen> {
 
   void _startGame() {
     if (_difficulty == Difficulty.challenge) {
-      // 챌린지 모드는 현재 기능 구현 중
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('챌린지 모드는 현재 개발 중입니다! 다른 난이도를 선택해주세요.'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.purple,
-        ),
+      // 챌린지 모드 화면으로 이동
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const ChallengeModeScreen()),
       );
       return;
     }
