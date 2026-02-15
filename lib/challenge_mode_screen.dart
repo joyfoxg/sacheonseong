@@ -63,6 +63,45 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
     );
   }
 
+  int _cheatTapCount = 0;
+  DateTime? _lastCheatTapTime;
+
+  void _handleCheatTap() {
+    final now = DateTime.now();
+    if (_lastCheatTapTime == null || 
+        now.difference(_lastCheatTapTime!) > const Duration(seconds: 1)) {
+      _cheatTapCount = 0;
+    }
+    
+    _lastCheatTapTime = now;
+    _cheatTapCount++;
+    
+    if (_cheatTapCount >= 9) {
+      _cheatTapCount = 0;
+      _toggleAllStages();
+    }
+  }
+
+  Future<void> _toggleAllStages() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    setState(() {
+      if (_unlockedStage < 20) {
+        _unlockedStage = 20;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('개발자 치트: 모든 스테이지 해제! 🔓')),
+        );
+      } else {
+        _unlockedStage = 1;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('개발자 치트: 스테이지 잠금 초기화! 🔒')),
+        );
+      }
+    });
+    
+    await prefs.setInt('challenge_unlocked_stage', _unlockedStage);
+  }
+
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), // 8 -> 4 최소화
@@ -73,12 +112,15 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8), // 10 -> 8
-          const Text(
-            '🔥 챌린지 모드',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24, // 28 -> 24
-              fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: _handleCheatTap,
+            child: const Text(
+              '🔥 챌린지 모드',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24, // 28 -> 24
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
