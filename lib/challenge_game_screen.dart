@@ -486,7 +486,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(40), // 타일 크기 30% 축소를 위해 패딩 대폭 증가 (4 -> 40)
+          padding: const EdgeInsets.all(10), // 타일 크기 확대를 위해 패딩 축소 (40 -> 10)
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: _cols, // 동적 컬럼 수 사용 (40타일 -> 6열)
             crossAxisSpacing: 2,
