@@ -162,14 +162,109 @@ class SichuanLogic {
     // 2D 보드 생성 (테두리는 빈 값)
     List<String> board = List.filled(rows * cols, '');
     
-    int deckIndex = 0;
-    for (int r = 1; r < rows - 1 && deckIndex < deck.length; r++) {
-      for (int c = 1; c < cols - 1 && deckIndex < deck.length; c++) {
-        board[r * cols + c] = deck[deckIndex++];
+    // 패턴 마스크 생성 (true인 곳에만 타일 배치 가능)
+    List<bool> mask = _getPatternMask(pattern);
+    
+    // 마스크에서 유효한 인덱스들만 수집 (테두리 제외)
+    List<int> validIndices = [];
+    for (int r = 1; r < rows - 1; r++) {
+      for (int c = 1; c < cols - 1; c++) {
+        int index = r * cols + c;
+        if (mask[index]) {
+          validIndices.add(index);
+        }
       }
     }
     
+    // 유효한 위치가 타일 수보다 적으면 안됨 (기본적으로 패턴이 충분히 커야 함)
+    // 부족하면 무작위로 추가하거나, 패턴을 무시하고 중앙부터 채움
+    if (validIndices.length < totalTiles) {
+        // Fallback: 중앙에서부터 나선형으로 채우기 등
+        // 여기서는 단순하게 빈 공간 아무데나 추가
+        for (int r = 1; r < rows - 1; r++) {
+            for (int c = 1; c < cols - 1; c++) {
+                int index = r * cols + c;
+                if (!validIndices.contains(index)) {
+                    validIndices.add(index);
+                    if (validIndices.length >= totalTiles) break;
+                }
+            }
+            if (validIndices.length >= totalTiles) break;
+        }
+    }
+    
+    // validIndices 섞기 (cluster 패턴일 때 특히 유용, 정형화된 패턴은 안 섞는 게 모양 유지에 좋음)
+    // 단, 모양을 예쁘게 유지하려면 섞지 않고 "중앙에서부터" 또는 "위에서부터" 순서대로 채우는 게 좋음
+    // 여기서는 패턴 형상을 유지하기 위해, validIndices를 "중앙 중심"으로 정렬하여 우선순위를 둠
+    int centerR = rows ~/ 2;
+    int centerC = cols ~/ 2;
+    validIndices.sort((a, b) {
+        int r1 = a ~/ cols;
+        int c1 = a % cols;
+        int dist1 = (r1 - centerR).abs() + (c1 - centerC).abs();
+        
+        int r2 = b ~/ cols;
+        int c2 = b % cols;
+        int dist2 = (r2 - centerC).abs() + (c2 - centerC).abs();
+        
+        return dist1.compareTo(dist2);
+    });
+
+    // 타일 배치
+    // deck의 타일들을 validIndices의 앞쪽부터 채움 (중앙 집중)
+    for (int i = 0; i < deck.length && i < validIndices.length; i++) {
+        board[validIndices[i]] = deck[i];
+    }
+    
     return board;
+  }
+
+  // 패턴에 따른 마스크 생성
+  List<bool> _getPatternMask(LayoutPattern? pattern) {
+    List<bool> mask = List.filled(rows * cols, false);
+    int centerR = rows ~/ 2;
+    int centerC = cols ~/ 2;
+
+    for (int r = 1; r < rows - 1; r++) {
+      for (int c = 1; c < cols - 1; c++) {
+        bool isValid = true;
+        
+        if (pattern == null || pattern == LayoutPattern.pyramid) {
+             // 기본 직사각형 (모두 true)
+             isValid = true;
+        } else if (pattern == LayoutPattern.diamond) {
+            // 마름모: |r-center| + |c-center| <= limit
+            if ((r - centerR).abs() + (c - centerC).abs() > (min(rows, cols) ~/ 2) - 1) {
+                isValid = false;
+            }
+        } else if (pattern == LayoutPattern.cross) {
+            // 십자가: r이 범위 내 or c가 범위 내
+            if ((r - centerR).abs() > 1 && (c - centerC).abs() > 1) {
+                isValid = false;
+            }
+        } else if (pattern == LayoutPattern.ring) {
+            // 링: 중심에서 일정 거리 이상, 일정 거리 이하
+            int dist = (r - centerR).abs() + (c - centerC).abs();
+            if (dist < 2 || dist > 5) isValid = false;
+        } else if (pattern == LayoutPattern.mystery) { // border replaced by mystery/ring like
+             // 테두리형: 가장자리만 사용
+             if (r > 2 && r < rows - 3 && c > 2 && c < cols - 3) isValid = false;
+        } else if (pattern == LayoutPattern.stripes) {
+            // 줄무늬: 짝수 행만 or 홀수 행만
+            if (r % 2 != 0) isValid = false;
+        } else if (pattern == LayoutPattern.zigzag) {
+            // 지그재그 (체스판)
+            if ((r + c) % 2 != 0) isValid = false;
+        } else if (pattern == LayoutPattern.hourglass) {
+            // 모래시계
+            if ((r - centerR).abs() < (c - centerC).abs()) isValid = false;
+        }
+        // stairs, spiral, cluster 등은 기본적으로 전체 허용하되 배치 순서로 모양 결정
+        
+        mask[r * cols + c] = isValid;
+      }
+    }
+    return mask;
   }
 
   // 두 좌표(1D index) 연결 가능 여부 및 경로(List<int>) 반환
