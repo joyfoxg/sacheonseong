@@ -386,6 +386,27 @@ class SichuanLogic {
         board[idx] = 'BLOCK';
     }
     
+    // 무결성 검증 (Integrity Check)
+    int actualTiles = 0;
+    Map<String, int> tileCounts = {};
+    
+    for (String t in board) {
+        if (t.isNotEmpty && t != 'BLOCK') {
+            actualTiles++;
+            tileCounts[t] = (tileCounts[t] ?? 0) + 1;
+        }
+    }
+    
+    if (actualTiles != totalTiles) {
+        print("CRITICAL ERROR: Generated $actualTiles tiles, expected $totalTiles");
+    }
+    
+    for (var entry in tileCounts.entries) {
+        if (entry.value % 2 != 0) {
+             print("CRITICAL ERROR: Tile ${entry.key} has odd count: ${entry.value}");
+        }
+    }
+    
     return board;
   }
 
