@@ -191,16 +191,27 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              '$stage',
-              style: TextStyle(
-                color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.4),
-                fontSize: 26, // 32 -> 26
-                fontWeight: FontWeight.bold,
-              ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(
+                  '$stage',
+                  style: TextStyle(
+                    color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.15),
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (!isUnlocked)
+                  Icon(
+                    Icons.lock,
+                    color: Colors.white.withOpacity(0.5),
+                    size: 22,
+                  ),
+              ],
             ),
             
-            const SizedBox(height: 6), // 8 -> 6
+            const SizedBox(height: 6),
             
             // 타일 수
             Row(
@@ -232,15 +243,6 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
-              ),
-            ],
-            
-            if (!isUnlocked) ...[
-              const SizedBox(height: 6),
-              Icon(
-                Icons.lock,
-                color: Colors.white.withOpacity(0.4),
-                size: 18, // 24 -> 18 (자물쇠 축소)
               ),
             ],
           ],
