@@ -92,8 +92,8 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: 8,
-        mainAxisSpacing: 14, // 6 -> 14 (간격 증가)
-        childAspectRatio: 1.3, // 1.05 -> 1.3 (카드를 훨씬 더 납작하게)
+        mainAxisSpacing: 14,
+        childAspectRatio: 1.0, // 정사각형 비율
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
@@ -145,7 +145,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
               'Stage',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
-                fontSize: 12, // 10 -> 12 복원
+                fontSize: 10, // 12 -> 10
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -153,12 +153,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
               '$stage',
               style: TextStyle(
                 color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.4),
-                fontSize: 32, // 28 -> 32 복원
+                fontSize: 26, // 32 -> 26
                 fontWeight: FontWeight.bold,
               ),
             ),
             
-            const SizedBox(height: 8), // 4 -> 8 복원
+            const SizedBox(height: 6), // 8 -> 6
             
             // 타일 수
             Row(
