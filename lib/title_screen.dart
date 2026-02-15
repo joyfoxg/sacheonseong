@@ -117,7 +117,7 @@ class _TitleScreenState extends State<TitleScreen> {
 
               // 난이도 선택 UI (게임 시작 버튼 상부)
               Positioned(
-                top: screenHeight * 0.60, // 화면 높이의 60% 위치
+                top: screenHeight * 0.65, // 화면 높이의 65% 위치 (전광판 피하기)
                 left: 0,
                 right: 0,
                 child: Center(
@@ -191,8 +191,8 @@ class _TitleScreenState extends State<TitleScreen> {
 
   Widget _buildDifficultySelector(double screenWidth, double screenHeight) {
     return Container(
-      width: screenWidth * 0.65,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      width: screenWidth * 0.55, // 화면 너비의 55% (축소)
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8), // 패딩 감소
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -220,7 +220,7 @@ class _TitleScreenState extends State<TitleScreen> {
         children: [
           // 왼쪽 화살표
           IconButton(
-            icon: const Icon(Icons.arrow_left, color: Colors.amber, size: 32),
+            icon: const Icon(Icons.arrow_left, color: Colors.amber, size: 28), // 크기 감소
             onPressed: () {
               setState(() {
                 final currentIndex = Difficulty.values.indexOf(_difficulty);
@@ -238,14 +238,14 @@ class _TitleScreenState extends State<TitleScreen> {
               children: [
                 Text(
                   _getDifficultyIcon(_difficulty),
-                  style: const TextStyle(fontSize: 28),
+                  style: const TextStyle(fontSize: 24), // 크기 감소
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3), // 간격 감소
                 Text(
                   _difficulty.label,
                   style: TextStyle(
                     color: _getDifficultyColor(_difficulty),
-                    fontSize: 20,
+                    fontSize: 18, // 크기 감소
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(
@@ -262,7 +262,7 @@ class _TitleScreenState extends State<TitleScreen> {
           
           // 오른쪽 화살표
           IconButton(
-            icon: const Icon(Icons.arrow_right, color: Colors.amber, size: 32),
+            icon: const Icon(Icons.arrow_right, color: Colors.amber, size: 28), // 크기 감소
             onPressed: () {
               setState(() {
                 final currentIndex = Difficulty.values.indexOf(_difficulty);
