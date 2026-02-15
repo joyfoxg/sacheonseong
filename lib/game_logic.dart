@@ -276,9 +276,11 @@ class SichuanLogic {
     
     // 재작성된 로직:
     
-    // 다시 초기화
-    tileIndices.clear();
-    obstacleIndices.clear();
+    // 재작성된 로직:
+    
+    // 다시 초기화 (선언 포함)
+    List<int> tileIndices = [];
+    List<int> obstacleIndices = [];
     
     // 1. 장애물 위치 확보 (내부 중심)
     List<int> collectedInner = [];
