@@ -47,17 +47,18 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     _config = ChallengeStages.getStage(widget.stage);
     
     // 타일 수에 따라 그리드 크기 최적화 (타일 크기 최대화)
+    // SichuanLogic은 테두리 1칸씩을 제외하고 배치하므로, 원하는 열 수 + 2를 해야 함
     if (_config.tileCount <= 40) {
-      _cols = 5;  // 가로 5열
+      _cols = 7;  // 실제 타일 5열 (7-2)
       _rows = 14; 
     } else if (_config.tileCount <= 60) {
-      _cols = 6;
+      _cols = 8;  // 실제 타일 6열 (8-2)
       _rows = 14;
     } else if (_config.tileCount <= 80) {
-      _cols = 8;
+      _cols = 10; // 실제 타일 8열 (10-2)
       _rows = 14;
     } else {
-      _cols = 10;
+      _cols = 12; // 실제 타일 10열 (12-2)
       _rows = 14;
     }
 
