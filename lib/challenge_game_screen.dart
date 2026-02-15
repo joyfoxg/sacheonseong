@@ -39,6 +39,10 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   // 상태
   String _state = 'preparing'; // preparing, playing, finished
 
+  // 아이템
+  int _shuffleCount = 1;
+  int _hintCount = 2;
+
   Timer? _pathClearTimer;
 
   @override
@@ -96,6 +100,36 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
         }
       });
     });
+  }
+
+  void _onShuffle() {
+    if (_state != 'playing' || _shuffleCount <= 0) return;
+    
+    setState(() {
+      _board = _logic.shuffleBoard(_board);
+      _shuffleCount--;
+      _selectedIndex = -1;
+      _selectedPath = null;
+    });
+    
+    _audioManager.playSelect(); // 효과음 (임시)
+  }
+
+  void _onHint() {
+    if (_state != 'playing' || _hintCount <= 0) return;
+
+    List<int>? hint = _logic.findHint(_board);
+    if (hint != null && hint.isNotEmpty) {
+      setState(() {
+        _hintCount--;
+        // 힌트 타일들을 잠시 강조 (선택된 것처럼 표시)
+        _selectedIndex = hint[0];
+        // 혹은 별도의 하이라이트 처리를 할 수도 있음
+      });
+      _audioManager.playSelect(); // 효과음 (임시)
+    } else {
+      // 힌트가 없음 (재섞기 필요 상황이지만 여기선 패스)
+    }
   }
 
   void _onTileTap(int index) {
@@ -386,12 +420,78 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
               Expanded(
                 child: _buildGameBoard(),
               ),
+              _buildBottomControls(), // 하단 컨트롤 추가
             ],
           ),
         ),
       ),
     );
   }
+  
+  Widget _buildBottomControls() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      color: Colors.black26,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildActionButton(
+            icon: Icons.shuffle,
+            label: '셔플',
+            count: _shuffleCount,
+            onTap: _onShuffle,
+            color: Colors.blueAccent,
+          ),
+          _buildActionButton(
+            icon: Icons.lightbulb_outline,
+            label: '힌트',
+            count: _hintCount,
+            onTap: _onHint,
+            color: Colors.orangeAccent,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required int count,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    final bool isEnabled = count > 0;
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isEnabled ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isEnabled ? color : Colors.grey.withOpacity(0.3),
+            width: 2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isEnabled ? color : Colors.grey, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              '$label $count',
+              style: TextStyle(
+                color: isEnabled ? Colors.white : Colors.grey,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildHeader() {
     return Container(
