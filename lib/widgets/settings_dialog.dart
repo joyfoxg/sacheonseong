@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../audio_manager.dart';
-import '../difficulty.dart';
 
 class SettingsDialog extends StatefulWidget {
-  final Difficulty currentDifficulty;
-  final ValueChanged<Difficulty> onDifficultyChanged;
-  
-  const SettingsDialog({
-    super.key,
-    required this.currentDifficulty,
-    required this.onDifficultyChanged,
-  });
+  const SettingsDialog({super.key});
 
   @override
   State<SettingsDialog> createState() => _SettingsDialogState();
@@ -22,7 +14,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
   late bool _bgmEnabled;
   late double _bgmVolume;
   late double _sfxVolume;
-  late Difficulty _difficulty;
 
   @override
   void initState() {
@@ -30,7 +21,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
     _bgmEnabled = _audioManager.isBgmEnabled;
     _bgmVolume = _audioManager.bgmVolume;
     _sfxVolume = _audioManager.sfxVolume;
-    _difficulty = widget.currentDifficulty;
   }
 
   @override
@@ -120,10 +110,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     }
                   },
                 ),
-                const SizedBox(height: 30),
-
-                // 난이도 설정
-                _buildDifficultySection(),
                 const SizedBox(height: 35),
 
                 // 닫기 버튼
@@ -242,82 +228,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
             max: 1.0,
             divisions: 20,
             onChanged: enabled ? onChanged : null,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDifficultySection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text('🎯', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
-            const Text(
-              '난이도',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<Difficulty>(
-              value: _difficulty,
-              isExpanded: true,
-              dropdownColor: const Color(0xFF1A1A1A),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.amber),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-              items: Difficulty.values.map((Difficulty value) {
-                return DropdownMenuItem<Difficulty>(
-                  value: value,
-                  child: Row(
-                    children: [
-                      Icon(
-                        value == Difficulty.easy
-                            ? Icons.sentiment_satisfied_alt
-                            : value == Difficulty.normal
-                                ? Icons.sentiment_neutral
-                                : Icons.sentiment_very_dissatisfied,
-                        color: value == Difficulty.easy
-                            ? Colors.green
-                            : value == Difficulty.normal
-                                ? Colors.blue
-                                : Colors.red,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(value.label),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (Difficulty? newValue) {
-                if (newValue != null) {
-                  setState(() => _difficulty = newValue);
-                  widget.onDifficultyChanged(newValue);
-                }
-              },
-            ),
           ),
         ),
       ],

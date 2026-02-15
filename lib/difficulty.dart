@@ -1,7 +1,8 @@
 enum Difficulty {
   easy,
   normal,
-  hard
+  hard,
+  challenge
 }
 
 extension DifficultyExtension on Difficulty {
@@ -13,6 +14,8 @@ extension DifficultyExtension on Difficulty {
         return '중급';
       case Difficulty.hard:
         return '고급';
+      case Difficulty.challenge:
+        return '챌린지';
     }
   }
 }

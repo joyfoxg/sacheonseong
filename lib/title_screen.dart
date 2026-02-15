@@ -42,12 +42,25 @@ class _TitleScreenState extends State<TitleScreen> {
   void _showSettingsDialog() {
     showDialog(
       context: context,
-      builder: (context) => SettingsDialog(
-        currentDifficulty: _difficulty,
-        onDifficultyChanged: (newDifficulty) {
-          setState(() => _difficulty = newDifficulty);
-        },
-      ),
+      builder: (context) => const SettingsDialog(),
+    );
+  }
+
+  void _startGame() {
+    if (_difficulty == Difficulty.challenge) {
+      // 챌린지 모드는 현재 기능 구현 중
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('챌린지 모드는 현재 개발 중입니다! 다른 난이도를 선택해주세요.'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.purple,
+        ),
+      );
+      return;
+    }
+    
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => GameScreen(difficulty: _difficulty)),
     );
   }
 
@@ -102,6 +115,16 @@ class _TitleScreenState extends State<TitleScreen> {
               
               
 
+              // 난이도 선택 UI (게임 시작 버튼 상부)
+              Positioned(
+                top: screenHeight * 0.60, // 화면 높이의 60% 위치
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _buildDifficultySelector(screenWidth, screenHeight),
+                ),
+              ),
+
               // [PATCH] 게임 시작 버튼 (화면 비율 기반 위치)
               Positioned(
                 top: screenHeight * 0.72, // 화면 높이의 72% 위치
@@ -109,11 +132,7 @@ class _TitleScreenState extends State<TitleScreen> {
                 right: 0,
                 child: Center(
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => GameScreen(difficulty: _difficulty)),
-                      );
-                    },
+                    onTap: _startGame,
                     child: Container(
                       width: screenWidth * 0.45, // 화면 너비의 45%
                       height: screenHeight * 0.07, // 화면 높이의 7%
@@ -168,5 +187,119 @@ class _TitleScreenState extends State<TitleScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildDifficultySelector(double screenWidth, double screenHeight) {
+    return Container(
+      width: screenWidth * 0.65,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.black.withOpacity(0.4),
+            Colors.black.withOpacity(0.2),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.amber.withOpacity(0.5),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 왼쪽 화살표
+          IconButton(
+            icon: const Icon(Icons.arrow_left, color: Colors.amber, size: 32),
+            onPressed: () {
+              setState(() {
+                final currentIndex = Difficulty.values.indexOf(_difficulty);
+                final newIndex = (currentIndex - 1) % Difficulty.values.length;
+                _difficulty = Difficulty.values[newIndex];
+              });
+              AudioManager().playSelect();
+            },
+          ),
+          
+          // 현재 난이도 표시
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getDifficultyIcon(_difficulty),
+                  style: const TextStyle(fontSize: 28),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _difficulty.label,
+                  style: TextStyle(
+                    color: _getDifficultyColor(_difficulty),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.8),
+                        offset: const Offset(1, 1),
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 오른쪽 화살표
+          IconButton(
+            icon: const Icon(Icons.arrow_right, color: Colors.amber, size: 32),
+            onPressed: () {
+              setState(() {
+                final currentIndex = Difficulty.values.indexOf(_difficulty);
+                final newIndex = (currentIndex + 1) % Difficulty.values.length;
+                _difficulty = Difficulty.values[newIndex];
+              });
+              AudioManager().playSelect();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getDifficultyIcon(Difficulty difficulty) {
+    switch (difficulty) {
+      case Difficulty.easy:
+        return '😊';
+      case Difficulty.normal:
+        return '😐';
+      case Difficulty.hard:
+        return '😰';
+      case Difficulty.challenge:
+        return '🔥';
+    }
+  }
+
+  Color _getDifficultyColor(Difficulty difficulty) {
+    switch (difficulty) {
+      case Difficulty.easy:
+        return Colors.green;
+      case Difficulty.normal:
+        return Colors.blue;
+      case Difficulty.hard:
+        return Colors.red;
+      case Difficulty.challenge:
+        return Colors.purple;
+    }
   }
 }
