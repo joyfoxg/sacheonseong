@@ -194,29 +194,31 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
             Stack(
               alignment: Alignment.center,
               children: [
-                Text(
-                  '$stage',
-                  style: TextStyle(
-                    color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.15),
-                    fontSize: 28, // 26 -> 28
-                    fontWeight: FontWeight.w900, // bold -> w900
-                    shadows: isUnlocked
-                        ? [
-                            Shadow(
-                              color: Colors.black.withOpacity(0.5),
-                              offset: const Offset(1, 1),
-                              blurRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
+                // 자물쇠를 배경으로 (먼저 그림)
                 if (!isUnlocked)
                   Icon(
                     Icons.lock,
-                    color: Colors.white.withOpacity(0.5),
-                    size: 22,
+                    color: Colors.black.withOpacity(0.2), // 흐리게 배경처럼
+                    size: 32, // 크기 살짝 키움
                   ),
+                  
+                // 숫자를 앞으로 (나중에 그림)
+                Text(
+                  '$stage',
+                  style: TextStyle(
+                    // 잠겨있어도 숫자는 잘 보이게 (흰색)
+                    color: Colors.white.withOpacity(isUnlocked ? 1.0 : 0.7),
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.5),
+                        offset: const Offset(1, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             
