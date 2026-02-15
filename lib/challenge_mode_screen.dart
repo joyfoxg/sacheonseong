@@ -91,9 +91,9 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), // 상단 패딩 0으로
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        crossAxisSpacing: 8, // 10 -> 8
-        mainAxisSpacing: 6, // 10 -> 6 (줄 간격 축소)
-        childAspectRatio: 1.05, // 0.85 -> 1.05 (카드를 더 납작하게)
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 14, // 6 -> 14 (간격 증가)
+        childAspectRatio: 1.3, // 1.05 -> 1.3 (카드를 훨씬 더 납작하게)
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
