@@ -417,10 +417,10 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
           child: Column(
             children: [
               _buildHeader(),
+              _buildItemControls(), // 상단으로 이동
               Expanded(
                 child: _buildGameBoard(),
               ),
-              _buildBottomControls(), // 하단 컨트롤 추가
             ],
           ),
         ),
@@ -428,12 +428,12 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     );
   }
   
-  Widget _buildBottomControls() {
+  Widget _buildItemControls() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      color: Colors.black26,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      color: Colors.black12, // 배경색 연하게
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
         children: [
           _buildActionButton(
             icon: Icons.shuffle,
@@ -442,6 +442,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
             onTap: _onShuffle,
             color: Colors.blueAccent,
           ),
+          const SizedBox(width: 20),
           _buildActionButton(
             icon: Icons.lightbulb_outline,
             label: '힌트',
@@ -465,24 +466,24 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     return GestureDetector(
       onTap: isEnabled ? onTap : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), // 패딩 절반 축소
         decoration: BoxDecoration(
           color: isEnabled ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(15), // 반지름 축소
           border: Border.all(
             color: isEnabled ? color : Colors.grey.withOpacity(0.3),
-            width: 2,
+            width: 1.5, // 테두리 두께 축소
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isEnabled ? color : Colors.grey, size: 24),
-            const SizedBox(width: 8),
+            Icon(icon, color: isEnabled ? color : Colors.grey, size: 16), // 아이콘 크기 축소 (24 -> 16)
+            const SizedBox(width: 6),
             Text(
               '$label $count',
               style: TextStyle(
                 color: isEnabled ? Colors.white : Colors.grey,
-                fontSize: 18,
+                fontSize: 13, // 폰트 크기 축소 (18 -> 13)
                 fontWeight: FontWeight.bold,
               ),
             ),
