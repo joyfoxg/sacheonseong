@@ -256,6 +256,9 @@ class SichuanLogic {
     List<int> tileIndices = [];
     List<int> obstacleIndices = [];
     
+    int pairsNeeded = totalTiles ~/ 2;
+    int obstaclesNeeded = obstacleCount;
+    
     // pairedIndices를 내부/외부로 분류
     List<List<int>> innerPairs = [];
     List<List<int>> outerPairs = [];
