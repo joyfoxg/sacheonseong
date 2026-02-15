@@ -88,12 +88,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildStageGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // 패딩 축소
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        childAspectRatio: 0.85,
+        crossAxisSpacing: 12, // 간격 축소
+        mainAxisSpacing: 12, // 간격 촉5소
+        childAspectRatio: 0.9, // 비율 조정 (0.85 -> 0.9)
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
