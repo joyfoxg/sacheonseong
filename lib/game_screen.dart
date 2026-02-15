@@ -79,6 +79,12 @@ class _GameScreenState extends State<GameScreen> {
         _shuffleCount = 1;
         _timeLimitSeconds = null; // 무제한 (기존 5분 제한 제거)
         break;
+      case Difficulty.challenge:
+        // 챌린지 모드 (향후 구현 예정)
+        _hintCount = 0;
+        _shuffleCount = 0;
+        _timeLimitSeconds = 180; // 3분
+        break;
     }
   }
 
