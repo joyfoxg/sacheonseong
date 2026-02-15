@@ -198,8 +198,8 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
                 if (!isUnlocked)
                   Icon(
                     Icons.lock,
-                    color: Colors.black.withOpacity(0.2), // 흐리게 배경처럼
-                    size: 32, // 크기 살짝 키움
+                    color: Colors.white.withOpacity(0.3), // 검은색->흰색 변경 및 투명도 상향
+                    size: 36, // 크기 살짝 더 키움 (32 -> 36)
                   ),
                   
                 // 숫자를 앞으로 (나중에 그림)
