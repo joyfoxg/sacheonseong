@@ -20,8 +20,8 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   late StageConfig _config;
 
   // Board dimensions (dynamic)
-  int _rows = 14; // 기본 높이 넉넉하게
-  int _cols = 6;  // 기본 너비
+  int _rows = 14; 
+  int _cols = 5;  // 가로 5열 요청
 
   List<String> _board = [];
   int _selectedIndex = -1;
