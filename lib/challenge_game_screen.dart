@@ -56,7 +56,13 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   }
 
   void _startGame() {
-    _board = _logic.getBoard();
+    _board = _logic.generateBoard();
+    // 풀 수 없는 판이면 다시 섮기 시도
+    int retry = 0;
+    while (_logic.isDeadlock(_board) && retry < 10) {
+      _board = _logic.generateBoard();
+      retry++;
+    }
     _state = 'playing';
     _stopwatch.start();
     
@@ -95,7 +101,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
       });
     } else {
       // 두 번째 타일 선택
-      final path = _logic.findPath(_selectedIndex, index);
+      final path = _logic.canMatch(_board, _selectedIndex, index);
       if (path != null) {
         // 매칭 성공
         setState(() {
@@ -108,17 +114,20 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
         _pairsCleared++;
         _score += 100;
 
+        // 타일 제거
+        _board[_selectedIndex] = '';
+        _board[index] = '';
+
         // 타일 제거 후 경로 초기화
         _pathClearTimer?.cancel();
         _pathClearTimer = Timer(const Duration(milliseconds: 300), () {
           if (!mounted) return;
           setState(() {
-            _board = _logic.getBoard();
             _selectedPath = null;
             _selectedIndex = -1;
 
             // 클리어 체크
-            if (_logic.isFinished()) {
+            if (_board.every((tile) => tile.isEmpty)) {
               _gameOver(true);
             }
           });
