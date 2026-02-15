@@ -252,75 +252,151 @@ class SichuanLogic {
         }
     }
     
-    // 채우기 전략:
-    // 1. 타일 배치 (쌍 우선)
-    int pairsNeeded = totalTiles ~/ 2;
-    // 2. 장애물 배치 (쌍 우선, 홀수면 중앙)
-    int obstaclesNeeded = obstacleCount;
+    // 장애물 위치 확보 전략 수정:
+    // "블록들 사이"에 위치해야 하므로, 가장자리가 아닌 내부 위치를 우선적으로 선택해야 함.
+    // 기존 로직은 남은 쌍이나 중앙열을 사용했는데, 이는 외곽일 수도 있음.
     
-    List<int> tileIndices = [];
-    List<int> obstacleIndices = [];
-    
-    // 타일 위치 확보
-    if (pairedIndices.length >= pairsNeeded) {
-        for (int i = 0; i < pairsNeeded; i++) {
-            tileIndices.addAll(pairedIndices[i]); // 쌍으로 추가
+    // 1. 내부 인덱스(Inner Indices) 식별
+    // (테두리보다 한 칸 더 안쪽: r 2~rows-3, c 2~cols-3)
+    List<int> innerIndices = [];
+    for (int idx in tileIndices) { // 이미 타일이 배치될 예정인 위치들 중에서 선별
+        int r = idx ~/ cols;
+        int c = idx % cols;
+        if (r >= 2 && r < rows - 2 && c >= 2 && c < cols - 2) {
+            innerIndices.add(idx);
         }
-        // 사용된 쌍 제거
-        pairedIndices.removeRange(0, pairsNeeded);
+    }
+    
+    // 2. 장애물을 배치할 위치를 innerIndices에서 무작위 선택하여 교체
+    // (즉, 타일이 놓일 자리를 뺏어서 장애물을 놓고, 뺏긴 타일은 다른 빈자리나 외곽으로 이동)
+    // 하지만 타일 쌍이 깨지면 안되므로, 타일 쌍의 위치를 통째로 옮기거나 해야 함 -> 복잡.
+    
+    // 더 단순한 접근:
+    // 아예 처음부터 obstacleCount만큼을 "내부 위치"에서 먼저 확보하고 시작.
+    
+    // 재작성된 로직:
+    
+    // 다시 초기화
+    tileIndices.clear();
+    obstacleIndices.clear();
+    
+    // 1. 장애물 위치 확보 (내부 중심)
+    List<int> collectedInner = [];
+    List<int> collectedOuter = [];
+    
+    // pairedIndices를 내부/외부로 분류
+    List<List<int>> innerPairs = [];
+    List<List<int>> outerPairs = [];
+    
+    for (var pair in pairedIndices) {
+        int r1 = pair[0] ~/ cols;
+        int c1 = pair[0] % cols;
+        // pair[0]만 봐도 대칭이므로 r은 같고 c는 반대. 하나가 내부면 다른 하나도 내부일 확률 높음(대칭구조상)
+        // 엄밀히는 둘 다 체크
+        bool isInner1 = (r1 >= 2 && r1 < rows - 2 && c1 >= 2 && c1 < cols - 2);
+        
+        if (isInner1) innerPairs.add(pair);
+        else outerPairs.add(pair);
+    }
+    
+    // centerColIndices도 분류
+    List<int> innerCenter = [];
+    List<int> outerCenter = [];
+    for (int idx in centerColIndices) {
+        int r = idx ~/ cols;
+        int c = idx % cols;
+        if (r >= 2 && r < rows - 2 && c >= 2 && c < cols - 2) innerCenter.add(idx);
+        else outerCenter.add(idx);
+    }
+    
+    // 장애물 배치 (Inner 우선)
+    int currentObstacles = 0;
+    
+    // (1) Inner Center에서 하나씩 뽑기 (홀수 장애물 처리 용이, 중앙 알박기)
+    innerCenter.shuffle(random);
+    while (currentObstacles < obstaclesNeeded && innerCenter.isNotEmpty) {
+        obstacleIndices.add(innerCenter.removeAt(0));
+        currentObstacles++;
+    }
+    
+    // (2) Inner Pairs에서 뽑기 (쌍을 깨서 장애물 2개로 쓰거나, 1개 쓰고 1개 버리기?)
+    // 장애물은 쌍일 필요 없음. 그냥 위치만 잡으면 됨.
+    // Inner Pair를 깨서 두 자리를 모두 장애물로 쓰면 대칭성 유지됨.
+    innerPairs.shuffle(random);
+    while (currentObstacles < obstaclesNeeded && innerPairs.isNotEmpty) {
+        // 2개 다 장애물로
+        var pair = innerPairs.removeAt(0);
+        obstacleIndices.add(pair[0]);
+        currentObstacles++;
+        if (currentObstacles < obstaclesNeeded) {
+            obstacleIndices.add(pair[1]);
+            currentObstacles++;
+        } else {
+            // 하나 남은 건 타일용 풀(tempIndices 등)로 돌려야 함
+            // 복잡하니 일단 outerCenter나 나중에 처리
+            // 여기서는 그냥 버려짐(타일 배치 때 다시 수집됨) -> 아니면 explicit하게 남은걸 tileCandidates에 넣어야 함.
+            // 로직 단순화를 위해 일단 넘어감 (pairsNeeded 계산시 다시 수집 로직 필요)
+            // -> 위쪽 로직 구조상, unused positions는 사용 안됨.
+            // -> 해결책: 사용 안 된 index는 나중에 tileIndices 채울 때 활용해야 함.
+            // 하지만 지금 구조는 "pairedIndices"에서 꺼내 쓰는 방식.
+            // 남은 하나는 outerCenter(사실상 single pool)에 넣는게 맞음.
+            outerCenter.add(pair[1]); 
+        }
+    }
+    
+    // (3) 아직도 부족하면 Outer Inner (없음) -> Outer Center
+    while (currentObstacles < obstaclesNeeded && outerCenter.isNotEmpty) {
+        obstacleIndices.add(outerCenter.removeAt(0));
+        currentObstacles++;
+    }
+    
+    // (4) Outer Pairs
+    while (currentObstacles < obstaclesNeeded && outerPairs.isNotEmpty) {
+        var pair = outerPairs.removeAt(0);
+        obstacleIndices.add(pair[0]);
+        currentObstacles++;
+         if (currentObstacles < obstaclesNeeded) {
+            obstacleIndices.add(pair[1]);
+            currentObstacles++;
+        } else {
+             outerCenter.add(pair[1]);
+        }
+    }
+    
+    // 타일 배치 (남은 Pair들 + Center들)
+    // 남은 Inner Pairs, Outer Pairs 합치기
+    List<List<int>> allTilePairs = [...innerPairs, ...outerPairs];
+    // 남은 Center들 (Inner Center는 다 썼을 듯, Outer Center는 남았을 수도)
+    List<int> allTileSingles = [...innerCenter, ...outerCenter];
+    
+    // 타일은 쌍(Pair) 단위로 배치되어야 함 (board matching을 위해)
+    // deck에는 이미 쌍으로 들어있음.
+    // 위치(tileIndices)도 쌍으로 제공하는 게 이상적이지만, 셔플될거라 상관은 없음.
+    // 단, "위치 갯수"는 정확히 totalTiles여야 함.
+    
+    // Pair 위치들 먼저 확보
+    if (allTilePairs.length >= pairsNeeded) {
+        for (int i = 0; i < pairsNeeded; i++) {
+            tileIndices.addAll(allTilePairs[i]);
+        }
     } else {
-        // 쌍 부족 (모두 사용)
-        for (var pair in pairedIndices) {
+        // Pair 다 쓰고
+        for (var pair in allTilePairs) {
             tileIndices.addAll(pair);
         }
-        pairedIndices.clear();
         
+        // 부족분은 Singles에서 채움
         int remaining = totalTiles - tileIndices.length;
-        // 남은 건 중앙열에서 채움
-        for (int i = 0; i < remaining && i < centerColIndices.length; i++) {
-            tileIndices.add(centerColIndices.removeAt(0)); // 중앙값 사용
+        for (int i = 0; i < remaining && i < allTileSingles.length; i++) {
+            tileIndices.add(allTileSingles[i]);
         }
-        // 사용된 중앙값 제거는 removeAt으로 이미 됨
         
-        // 그래도 부족하면 tempIndices에서 (거의 없음)
+        // 그래도 부족하면 tempIndices (미사용분) 뒤짐
         for (int idx in tempIndices) {
             if (tileIndices.length >= totalTiles) break;
-            if (!tileIndices.contains(idx)) tileIndices.add(idx);
-        }
-    }
-    
-    // 장애물 위치 확보 (남은 쌍 + 중앙열 활용)
-    int obstaclesPairsNeeded = obstaclesNeeded ~/ 2;
-    
-    if (pairedIndices.length >= obstaclesPairsNeeded) {
-        for (int i = 0; i < obstaclesPairsNeeded; i++) {
-            obstacleIndices.addAll(pairedIndices[i]);
-        }
-        pairedIndices.removeRange(0, obstaclesPairsNeeded);
-    } else {
-         for (var pair in pairedIndices) {
-            obstacleIndices.addAll(pair);
-        }
-         pairedIndices.clear();
-    }
-    
-    // 홀수 장애물 or 쌍 부족분 처리
-    while (obstacleIndices.length < obstaclesNeeded) {
-        if (centerColIndices.isNotEmpty) {
-            obstacleIndices.add(centerColIndices.removeAt(0));
-        } else if (pairedIndices.isNotEmpty) {
-             // 쌍을 깨서 하나만 사용
-             obstacleIndices.add(pairedIndices[0][0]);
-             // 남은 하나는 버림 (or 나중에 활용?)
-             pairedIndices.removeAt(0);
-        } else {
-             // tempIndices에서 아직 사용되지 않은 위치 찾기
-             for (int idx in tempIndices) {
-                if (!tileIndices.contains(idx) && !obstacleIndices.contains(idx)) {
-                    obstacleIndices.add(idx);
-                    break;
-                }
-             }
+            if (!tileIndices.contains(idx) && !obstacleIndices.contains(idx)) {
+                tileIndices.add(idx);
+            }
         }
     }
 
