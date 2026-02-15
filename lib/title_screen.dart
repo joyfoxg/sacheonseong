@@ -127,7 +127,7 @@ class _TitleScreenState extends State<TitleScreen> {
 
               // [PATCH] 게임 시작 버튼 (화면 비율 기반 위치)
               Positioned(
-                top: screenHeight * 0.72, // 화면 높이의 72% 위치
+                top: screenHeight * 0.77, // 화면 높이의 77% 위치 (난이도 선택과의 간격 확보)
                 left: 0,
                 right: 0,
                 child: Center(
