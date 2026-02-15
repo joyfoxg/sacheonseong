@@ -123,22 +123,34 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
 
     final isSelected = index == _selectedIndex;
     final isInPath = _selectedPath?.contains(index) ?? false;
-    // The rest of the _buildTile method would go here, but it was not provided in the instruction.
-    // Assuming the instruction only wanted to add the BLOCK handling and the method signature.
-    // For now, returning a placeholder for non-block tiles to maintain syntactical correctness.
-    return Container(
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.blue.withOpacity(0.5) : Colors.white,
-        border: Border.all(
-          color: isInPath ? Colors.green : (isSelected ? Colors.blue : Colors.transparent),
-          width: 2,
+
+    return GestureDetector(
+      onTap: () => _onTileTap(index),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.amber.withOpacity(0.5)
+              : isInPath
+                  ? Colors.green.withOpacity(0.3)
+                  : Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isSelected ? Colors.amber : Colors.white24,
+            width: isSelected ? 3 : 1,
+          ),
         ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          tile,
-          style: const TextStyle(fontSize: 24),
+        child: Image.asset(
+          'assets/image/tiles/$tile',
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(
+              child: Text(
+                tile,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+                textAlign: TextAlign.center,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -645,42 +657,5 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     );
   }
 
-  Widget _buildTile(int index) {
-    final tile = _board[index];
-    if (tile.isEmpty) return const SizedBox.shrink();
 
-    final isSelected = index == _selectedIndex;
-    final isInPath = _selectedPath?.contains(index) ?? false;
-
-    return GestureDetector(
-      onTap: () => _onTileTap(index),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.amber.withOpacity(0.5)
-              : isInPath
-                  ? Colors.green.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isSelected ? Colors.amber : Colors.white24,
-            width: isSelected ? 3 : 1,
-          ),
-        ),
-        child: Image.asset(
-          'assets/image/tiles/$tile',
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Center(
-              child: Text(
-                tile,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-                textAlign: TextAlign.center,
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }
