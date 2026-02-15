@@ -93,7 +93,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
         crossAxisCount: 4,
         crossAxisSpacing: 8,
         mainAxisSpacing: 14,
-        childAspectRatio: 0.9, // 1.0 -> 0.9 (세로를 더 길게)
+        childAspectRatio: 0.8, // 0.9 -> 0.8 (세로를 더 길게)
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
