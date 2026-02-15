@@ -278,7 +278,8 @@ class SichuanLogic {
     
     // 재작성된 로직:
     
-    // 다시 초기화 (선언 포함)
+    
+    // 다시 초기화
     List<int> tileIndices = [];
     List<int> obstacleIndices = [];
     
