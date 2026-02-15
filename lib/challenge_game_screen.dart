@@ -19,9 +19,9 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   late SichuanLogic _logic;
   late StageConfig _config;
 
-  // Board dimensions
-  static const int rows = 13;
-  static const int cols = 12;
+  // Board dimensions (dynamic)
+  int _rows = 14; // 기본 높이 넉넉하게
+  int _cols = 6;  // 기본 너비
 
   List<String> _board = [];
   int _selectedIndex = -1;
@@ -45,9 +45,25 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   void initState() {
     super.initState();
     _config = ChallengeStages.getStage(widget.stage);
+    
+    // 타일 수에 따라 그리드 크기 최적화 (타일 크기 최대화)
+    if (_config.tileCount <= 40) {
+      _cols = 6;  // 2배 확대 효과
+      _rows = 14; // 여유 공간 확보
+    } else if (_config.tileCount <= 60) {
+      _cols = 8;
+      _rows = 14;
+    } else if (_config.tileCount <= 80) {
+      _cols = 10;
+      _rows = 14;
+    } else {
+      _cols = 12;
+      _rows = 14;
+    }
+
     _logic = SichuanLogic(
-      rows: rows,
-      cols: cols,
+      rows: _rows,
+      cols: _cols,
       tileCount: _config.tileCount,
       pattern: _config.pattern,
     );
@@ -378,7 +394,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           IconButton(
@@ -464,15 +480,14 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   }
 
   Widget _buildGameBoard() {
-    // 간단한 그리드 레이아웃 (실제로는 game_screen처럼 복잡하게 구현 필요)
     return Center(
       child: SingleChildScrollView(
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(4), // 패딩 대폭 축소 (20 -> 4)
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: cols,
+            crossAxisCount: _cols, // 동적 컬럼 수 사용 (40타일 -> 6열)
             crossAxisSpacing: 2,
             mainAxisSpacing: 2,
             childAspectRatio: 0.75,
