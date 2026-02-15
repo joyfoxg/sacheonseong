@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 import 'difficulty.dart';
+import 'challenge_stage_config.dart'; // 챌린지 모드 패턴
 
 class SichuanLogic {
   // 사천성 보드 크기 (10x14 등 짝수 권장)
@@ -34,12 +35,21 @@ class SichuanLogic {
   final int rows;
   final int cols;
   final Difficulty difficulty;
+  final int? tileCount; // 챌린지 모드용 타일 수 (선택적)
+  final LayoutPattern? pattern; // 챌린지 모드용 배치 패턴 (선택적)
   
-  SichuanLogic({required this.rows, required this.cols, this.difficulty = Difficulty.normal});
+  SichuanLogic({
+    required this.rows,
+    required this.cols,
+    this.difficulty = Difficulty.normal,
+    this.tileCount,
+    this.pattern,
+  });
 
   List<String> generateBoard() {
-    int totalTiles = (rows - 2) * (cols - 2);
-    if (totalTiles % 2 != 0) throw Exception("Board size must be even");
+    // 챌린지 모드인 경우 tileCount 사용, 아니면 기본 보드 크기 사용
+    int totalTiles = tileCount ?? ((rows - 2) * (cols - 2));
+    if (totalTiles % 2 != 0) throw Exception("Tile count must be even");
 
     List<String> deck = [];
     Random random = Random();
@@ -53,6 +63,9 @@ class SichuanLogic {
       poolSize = 25; // 종류를 25개로 제한 -> 55쌍 / 25종 = 평균 2.2쌍 (4.4개) 중복
     } else if (difficulty == Difficulty.normal) {
       poolSize = 45; // 종류를 45개로 제한 -> 55쌍 / 45종 = 평균 1.2쌍
+    } else if (difficulty == Difficulty.challenge) {
+      // 챌린지 모드는 타일 수에 맞게 동적 조정
+      poolSize = min(totalTiles ~/ 4, pool.length); // 타일 수의 1/4 정도 종류 사용
     } else {
       poolSize = 70; // 고급 난이도 완화: 전체 대신 70종으로 제한 (기존: pool.length)
     }
