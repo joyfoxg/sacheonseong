@@ -252,40 +252,9 @@ class SichuanLogic {
         }
     }
     
-    // 장애물 위치 확보 전략 수정:
-    // "블록들 사이"에 위치해야 하므로, 가장자리가 아닌 내부 위치를 우선적으로 선택해야 함.
-    // 기존 로직은 남은 쌍이나 중앙열을 사용했는데, 이는 외곽일 수도 있음.
-    
-    // 1. 내부 인덱스(Inner Indices) 식별
-    // (테두리보다 한 칸 더 안쪽: r 2~rows-3, c 2~cols-3)
-    List<int> innerIndices = [];
-    for (int idx in tileIndices) { // 이미 타일이 배치될 예정인 위치들 중에서 선별
-        int r = idx ~/ cols;
-        int c = idx % cols;
-        if (r >= 2 && r < rows - 2 && c >= 2 && c < cols - 2) {
-            innerIndices.add(idx);
-        }
-    }
-    
-    // 2. 장애물을 배치할 위치를 innerIndices에서 무작위 선택하여 교체
-    // (즉, 타일이 놓일 자리를 뺏어서 장애물을 놓고, 뺏긴 타일은 다른 빈자리나 외곽으로 이동)
-    // 하지만 타일 쌍이 깨지면 안되므로, 타일 쌍의 위치를 통째로 옮기거나 해야 함 -> 복잡.
-    
-    // 더 단순한 접근:
-    // 아예 처음부터 obstacleCount만큼을 "내부 위치"에서 먼저 확보하고 시작.
-    
-    // 재작성된 로직:
-    
-    // 재작성된 로직:
-    
-    
-    // 다시 초기화
+    // 초기화
     List<int> tileIndices = [];
     List<int> obstacleIndices = [];
-    
-    // 1. 장애물 위치 확보 (내부 중심)
-    List<int> collectedInner = [];
-    List<int> collectedOuter = [];
     
     // pairedIndices를 내부/외부로 분류
     List<List<int>> innerPairs = [];
