@@ -101,7 +101,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
       });
     } else {
       // 두 번째 타일 선택
-      final path = _logic.canMatch(_board, _selectedIndex, index);
+      final path = _logic.getPath(_board, _selectedIndex, index);
       if (path != null) {
         // 매칭 성공
         setState(() {
