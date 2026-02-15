@@ -65,7 +65,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // 패딩 축소
       child: Row(
         children: [
           IconButton(
@@ -88,12 +88,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildStageGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // 패딩 축소
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 더 축소
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        crossAxisSpacing: 12, // 간격 축소
-        mainAxisSpacing: 12, // 간격 촉5소
-        childAspectRatio: 0.9, // 비율 조정 (0.85 -> 0.9)
+        crossAxisSpacing: 10, // 간격 더 축소
+        mainAxisSpacing: 10, // 간격 더 축소
+        childAspectRatio: 1.0, // 비율 증가 (0.9 -> 1.0)
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
