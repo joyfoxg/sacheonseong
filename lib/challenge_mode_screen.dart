@@ -65,19 +65,19 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // 패딩 축소
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 최소화
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24), // 28 -> 24
             onPressed: () => Navigator.pop(context),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8), // 10 -> 8
           const Text(
             '🔥 챌린지 모드',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 24, // 28 -> 24
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -88,12 +88,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
 
   Widget _buildStageGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 더 축소
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 1.4, // 비율 증가 (1.2 -> 1.4) - 카드를 더 납작하게
+        childAspectRatio: 0.85, // 비율 복원 (1.4 -> 0.85) - 정상적인 크기로
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
@@ -141,12 +141,11 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 단계 번호
             Text(
               'Stage',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.7),
-                fontSize: 10, // 12 -> 10
+                fontSize: 12, // 10 -> 12 복원
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -154,12 +153,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
               '$stage',
               style: TextStyle(
                 color: isUnlocked ? Colors.white : Colors.white.withOpacity(0.4),
-                fontSize: 28, // 32 -> 28
+                fontSize: 32, // 28 -> 32 복원
                 fontWeight: FontWeight.bold,
               ),
             ),
             
-            const SizedBox(height: 4), // 8 -> 4
+            const SizedBox(height: 8), // 4 -> 8 복원
             
             // 타일 수
             Row(
