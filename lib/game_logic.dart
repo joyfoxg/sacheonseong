@@ -176,11 +176,8 @@ class SichuanLogic {
       }
     }
     
-    // 유효한 위치가 타일 수보다 적으면 안됨 (기본적으로 패턴이 충분히 커야 함)
-    // 부족하면 무작위로 추가하거나, 패턴을 무시하고 중앙부터 채움
+    // 유효한 위치가 타일 수보다 적으면 안됨
     if (validIndices.length < totalTiles) {
-        // Fallback: 중앙에서부터 나선형으로 채우기 등
-        // 여기서는 단순하게 빈 공간 아무데나 추가
         for (int r = 1; r < rows - 1; r++) {
             for (int c = 1; c < cols - 1; c++) {
                 int index = r * cols + c;
@@ -193,27 +190,109 @@ class SichuanLogic {
         }
     }
     
-    // validIndices 섞기 (cluster 패턴일 때 특히 유용, 정형화된 패턴은 안 섞는 게 모양 유지에 좋음)
-    // 단, 모양을 예쁘게 유지하려면 섞지 않고 "중앙에서부터" 또는 "위에서부터" 순서대로 채우는 게 좋음
-    // 여기서는 패턴 형상을 유지하기 위해, validIndices를 "중앙 중심"으로 정렬하여 우선순위를 둠
-    int centerR = rows ~/ 2;
+    // validIndices 정렬: 중앙 상단부터 시작하여 좌우 대칭성을 유지하며 채우기
+    // 1. 위에서 아래로 (Row 오름차순)
+    // 2. 중앙에서 좌우로 멀어지도록 (Column 중앙 거리 오름차순)
     int centerC = cols ~/ 2;
+    
     validIndices.sort((a, b) {
         int r1 = a ~/ cols;
         int c1 = a % cols;
-        int dist1 = (r1 - centerR).abs() + (c1 - centerC).abs();
+        int distC1 = (c1 - centerC).abs();
         
         int r2 = b ~/ cols;
         int c2 = b % cols;
-        int dist2 = (r2 - centerC).abs() + (c2 - centerC).abs();
+        int distC2 = (c2 - centerC).abs();
         
-        return dist1.compareTo(dist2);
+        // 1순위: 행 (위 -> 아래)
+        if (r1 != r2) return r1.compareTo(r2);
+        
+        // 2순위: 중앙에서의 가로 거리 (중앙 -> 외곽)
+        if (distC1 != distC2) return distC1.compareTo(distC2);
+        
+        // 3순위: 왼쪽 먼저 (같은 거리일 때)
+        return c1.compareTo(c2);
     });
 
     // 타일 배치
-    // deck의 타일들을 validIndices의 앞쪽부터 채움 (중앙 집중)
-    for (int i = 0; i < deck.length && i < validIndices.length; i++) {
-        board[validIndices[i]] = deck[i];
+    // 대칭성을 위해 짝수 개수만큼만 앞에서 자르고, 남은 게 홀수라면 중앙 타일 하나 추가 고려
+    // 하지만 이미 totalTiles는 짝수이므로, validIndices를 앞에서부터 totalTiles만큼 취하면
+    // 정렬 순서(행별 중앙 확산)에 의해 웬만하면 좌우 대칭이 유지됨.
+    // 단, 한 행의 유효 칸이 홀수개일 때 중앙 칸이 포함되면 대칭, 아니면 비대칭 될 수 있음.
+    
+    // 더 완벽한 대칭을 위해:
+    // 선택된 인덱스 리스트를 다시 구성
+    List<int> selectedIndices = [];
+    List<int> tempIndices = List.from(validIndices); // 복사본
+    
+    // 중앙열(centerC)에 있는 인덱스들과 그 외(좌우 쌍) 분리
+    List<int> centerColIndices = [];
+    List<List<int>> pairedIndices = []; // [[left, right], ...]
+    
+    // 맵핑
+    Map<int, int> posToIndex = {};
+    for (int idx in tempIndices) posToIndex[idx] = idx;
+    
+    for (int r = 1; r < rows - 1; r++) {
+        // 중앙열 처리
+        int centerIdx = r * cols + centerC;
+        if (posToIndex.containsKey(centerIdx)) {
+            centerColIndices.add(centerIdx);
+        }
+        
+        // 좌우 쌍 처리
+        for (int c = 1; c < centerC; c++) {
+            int leftIdx = r * cols + c;
+            int rightIdx = r * cols + (cols - 1 - c); // 대칭점 (cols가 7이면 0..6, center=3. c=1 <-> 6-1=5)
+            // cols는 전체 크기이므로 index는 0 ~ cols-1.
+            // 대칭 공식: (cols-1) - c. 
+            // 예: cols=7. indices 0,1,2,3,4,5,6. center=3. 
+            // c=1 <-> 7-1-1=5. c=2 <-> 7-1-2=4.
+            
+            if (posToIndex.containsKey(leftIdx) && posToIndex.containsKey(rightIdx)) {
+                pairedIndices.add([leftIdx, rightIdx]);
+            }
+        }
+    }
+    
+    // 채우기 전략:
+    // 1. 쌍(Pair) 우선 채우기
+    // 2. 남은 공간이 홀수개면 중앙열 하나 사용 (또는 짝수개 필요하면 두 개 사용)
+    
+    int pairsNeeded = totalTiles ~/ 2;
+    int pairsUsed = 0;
+    
+    // 가용 쌍이 충분하다면 쌍으로만 채우기
+    if (pairedIndices.length >= pairsNeeded) {
+        for (int i = 0; i < pairsNeeded; i++) {
+            selectedIndices.addAll(pairedIndices[i]);
+        }
+    } else {
+        // 쌍이 부족하면 모든 쌍 다 쓰고, 나머지를 중앙열이나 다른데서 채워야 함
+        // (보통 이러면 모양이 안 예쁘지만 로직상 방어)
+        for (var pair in pairedIndices) {
+            selectedIndices.addAll(pair);
+        }
+        int remaining = totalTiles - selectedIndices.length;
+        // 남은 건 중앙열에서 채움
+        for (int i = 0; i < remaining && i < centerColIndices.length; i++) {
+            selectedIndices.add(centerColIndices[i]);
+        }
+        // 그래도 부족하면? (거의 없겠지만) tempIndices에서 안 쓴거 막 채움
+        for (int idx in tempIndices) {
+            if (selectedIndices.length >= totalTiles) break;
+            if (!selectedIndices.contains(idx)) {
+                selectedIndices.add(idx);
+            }
+        }
+    }
+
+    // 최종 배치 시 셔플 (타일 종류 섞기)
+    // selectedIndices 위치에 deck 타일 배치
+    // 주의: selectedIndices가 정렬되어 있지 않으면 타일 짝이 흩어질 수 있음 (상관 없음, deck은 어차피 랜덤)
+    
+    for (int i = 0; i < deck.length && i < selectedIndices.length; i++) {
+        board[selectedIndices[i]] = deck[i];
     }
     
     return board;
@@ -246,7 +325,7 @@ class SichuanLogic {
             // 링: 중심에서 일정 거리 이상, 일정 거리 이하
             int dist = (r - centerR).abs() + (c - centerC).abs();
             if (dist < 2 || dist > 5) isValid = false;
-        } else if (pattern == LayoutPattern.mystery) { // border replaced by mystery/ring like
+        } else if (pattern == LayoutPattern.border) { 
              // 테두리형: 가장자리만 사용
              if (r > 2 && r < rows - 3 && c > 2 && c < cols - 3) isValid = false;
         } else if (pattern == LayoutPattern.stripes) {
