@@ -93,7 +93,7 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
         crossAxisCount: 4,
         crossAxisSpacing: 8,
         mainAxisSpacing: 14,
-        childAspectRatio: 1.0, // 정사각형 비율
+        childAspectRatio: 0.9, // 1.0 -> 0.9 (세로를 더 길게)
       ),
       itemCount: 20,
       itemBuilder: (context, index) {
@@ -193,13 +193,12 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
               ),
             ],
             
-            // 잠금 아이콘
             if (!isUnlocked) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Icon(
                 Icons.lock,
                 color: Colors.white.withOpacity(0.4),
-                size: 24,
+                size: 18, // 24 -> 18 (자물쇠 축소)
               ),
             ],
           ],
