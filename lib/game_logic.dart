@@ -163,8 +163,8 @@ class SichuanLogic {
     List<String> board = List.filled(rows * cols, '');
     
     int deckIndex = 0;
-    for (int r = 1; r < rows - 1; r++) {
-      for (int c = 1; c < cols - 1; c++) {
+    for (int r = 1; r < rows - 1 && deckIndex < deck.length; r++) {
+      for (int c = 1; c < cols - 1 && deckIndex < deck.length; c++) {
         board[r * cols + c] = deck[deckIndex++];
       }
     }
