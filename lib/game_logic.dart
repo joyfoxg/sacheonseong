@@ -272,6 +272,42 @@ class SichuanLogic {
   bool isDeadlock(List<String> board) {
     return findHint(board) == null && board.any((t) => t.isNotEmpty);
   }
+
+  // 남은 타일들을 재배치 (셔플)
+  // 매칭 가능한 쌍이 나오도록 보장
+  List<String> shuffleBoard(List<String> currentBoard) {
+    // 1. 현재 남은 타일 수집
+    List<String> remainingTiles = [];
+    List<int> collectedIndices = [];
+    
+    for (int i = 0; i < currentBoard.length; i++) {
+        if (currentBoard[i].isNotEmpty) {
+            remainingTiles.add(currentBoard[i]);
+            collectedIndices.add(i);
+        }
+    }
+    
+    if (remainingTiles.isEmpty) return currentBoard;
+
+    Random random = Random();
+    List<String> newBoard = List.from(currentBoard);
+    int retryCount = 0;
+
+    do {
+        // 2. 타일 섞기
+        remainingTiles.shuffle(random);
+        
+        // 3. 원래 있던 위치들에 다시 배치
+        for (int i = 0; i < collectedIndices.length; i++) {
+            newBoard[collectedIndices[i]] = remainingTiles[i];
+        }
+        
+        retryCount++;
+        // 100번 시도해도 안되면 그냥 반환 (무한 루프 방지)
+    } while (isDeadlock(newBoard) && retryCount < 100);
+
+    return newBoard;
+  }
 }
 
 class _Node {
