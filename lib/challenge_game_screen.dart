@@ -232,8 +232,34 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
             _selectedIndex = -1;
 
             // 클리어 체크
-            if (_board.every((tile) => tile.isEmpty)) {
+            // BLOCK은 남아있어도 클리어로 간주해야 함
+            bool isAllCleared = _board.every((tile) => tile.isEmpty || tile == 'BLOCK');
+            
+            if (isAllCleared) {
               _gameOver(true);
+            } else {
+              // 남은 타일이 2개인데 짝이 안 맞는 경우 자동 클리어 (버그 방지)
+              int remainingCount = 0;
+              List<int> remainingIndices = [];
+              for(int i=0; i<_board.length; i++) {
+                 if (_board[i].isNotEmpty && _board[i] != 'BLOCK') {
+                    remainingCount++;
+                    remainingIndices.add(i);
+                 }
+              }
+              
+              if (remainingCount == 2) {
+                 final tile1 = _board[remainingIndices[0]];
+                 final tile2 = _board[remainingIndices[1]];
+                 
+                 if (tile1 != tile2) {
+                    // 짝이 안 맞으면 강제 클리어 처리
+                    // (사용자가 갇히지 않게)
+                    _board[remainingIndices[0]] = '';
+                    _board[remainingIndices[1]] = '';
+                    _gameOver(true);
+                 }
+              }
             }
           });
         });
