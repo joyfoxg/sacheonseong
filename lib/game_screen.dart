@@ -7,6 +7,8 @@ import 'difficulty.dart';
 import 'title_screen.dart';
 import 'leaderboard_service.dart';
 import 'leaderboard_screen.dart';
+import 'widgets/particle_overlay.dart';
+import 'package:flutter/scheduler.dart';
 
 class GameScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -16,7 +18,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateMixin {
   final AudioManager _audioManager = AudioManager();
   final LeaderboardService _leaderboardService = LeaderboardService();
   final TextEditingController _nicknameController = TextEditingController();
@@ -49,6 +51,10 @@ class _GameScreenState extends State<GameScreen> {
   final GlobalKey _boardKey = GlobalKey();
   final GlobalKey _viewportKey = GlobalKey();
 
+  // 파티클 시스템
+  final ParticleSystem _particleSystem = ParticleSystem();
+  late final Ticker _ticker;
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +66,12 @@ class _GameScreenState extends State<GameScreen> {
     
     // 첫 프레임 렌더링 후 보드 크기를 화면에 최적으로 맞춤
     WidgetsBinding.instance.addPostFrameCallback((_) => _fitBoardToScreen());
+
+    // 파티클 업데이트 루프 시작
+    _ticker = createTicker((elapsed) {
+      _particleSystem.update();
+    });
+    _ticker.start();
   }
 
   void _applyDifficultySettings() {
@@ -290,6 +302,7 @@ class _GameScreenState extends State<GameScreen> {
     _timer?.cancel();
     _stopwatch.stop();
     _transformationController.dispose();
+    _ticker.dispose();
     // BGM은 TitleScreen과 공유하므로 여기서 멈추지 않음
     super.dispose();
   }
@@ -459,6 +472,17 @@ class _GameScreenState extends State<GameScreen> {
                                     painter: _PathPainter(_selectedPath!, cols, tileWidth, tileHeight),
                                   ),
                                 ),
+                              
+                              // 파티클 오버레이
+                              ListenableBuilder(
+                                listenable: _particleSystem,
+                                builder: (context, child) {
+                                  return ParticleOverlay(
+                                    system: _particleSystem,
+                                    size: Size(constraints.maxWidth, constraints.maxHeight),
+                                  );
+                                },
+                              ),
                             ],
                           );
                         },
@@ -548,6 +572,22 @@ class _GameScreenState extends State<GameScreen> {
         // 매칭 성공 -> 진동
         HapticFeedback.mediumImpact();
         _audioManager.playSuccess();
+        
+        // 파티클 효과 생성
+        int r1 = _selectedIndex ~/ cols;
+        int c1 = _selectedIndex % cols;
+        int r2 = index ~/ cols;
+        int c2 = index % cols;
+        
+        // 내부 그리드 기준 좌표로 변환 (테두리 1칸씩 제외)
+        // 타일 크기: 110 x 145
+        double x1 = (c1 - 1) * 110.0 + 55.0;
+        double y1 = (r1 - 1) * 145.0 + 72.5;
+        double x2 = (c2 - 1) * 110.0 + 55.0;
+        double y2 = (r2 - 1) * 145.0 + 72.5;
+        
+        _particleSystem.addExplosion(Offset(x1, y1));
+        _particleSystem.addExplosion(Offset(x2, y2));
         
         // CRITICAL: 타이머 실행 전에 인덱스를 로컬 변수로 캡처 (Race Condition 방지)
         final int firstIndex = _selectedIndex;
