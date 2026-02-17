@@ -293,6 +293,15 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
                     _board[remainingIndices[1]] = '';
                     _gameOver(true);
                  }
+              } else {
+                 // 3개 이상 남았을 때 Deadlock 체크
+                 if (_logic.isDeadlock(_board)) {
+                    // 타이머 안에서 실행되므로 mounted 체크 필요
+                    if (mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("패가 꼬여서 자동으로 섞습니다!")));
+                    }
+                    _autoShuffle();
+                 }
               }
             }
           });
