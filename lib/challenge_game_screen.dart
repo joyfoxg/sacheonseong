@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'game_logic.dart';
 import 'audio_manager.dart';
 import 'challenge_stage_config.dart';
+import 'leaderboard_service.dart';
 
 class ChallengeGameScreen extends StatefulWidget {
   final int stage;
