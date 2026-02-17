@@ -312,6 +312,93 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
     }
   }
 
+  void _showRankingRegisterDialog() {
+    TextEditingController nicknameController = TextEditingController();
+    bool isSaving = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF2A2A3E),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('명예의 전당 등록', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('닉네임을 입력하여 기록을 남기세요!', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nicknameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: '닉네임 (최대 10자)',
+                    hintStyle: const TextStyle(color: Colors.white38),
+                    filled: true,
+                    fillColor: Colors.black26,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    counterStyle: const TextStyle(color: Colors.white54),
+                  ),
+                  maxLength: 10,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSaving ? null : () => Navigator.pop(context),
+                child: const Text('취소', style: TextStyle(color: Colors.white54)),
+              ),
+              ElevatedButton(
+                onPressed: isSaving ? null : () async {
+                  final nickname = nicknameController.text.trim();
+                  if (nickname.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("닉네임을 입력해주세요!")));
+                    return;
+                  }
+
+                  setDialogState(() => isSaving = true);
+                  
+                  try {
+                    // 리더보드 서비스 호출
+                    // 챌린지 모드는 'challenge' 난이도로, 점수는 score 필드에, displayTime에는 스테이지 정보를 저장
+                    await LeaderboardService().saveScore(
+                      nickname: nickname,
+                      seconds: 0, // 챌린지는 시간이 아닌 점수 기준
+                      score: _score,
+                      displayTime: 'Stage ${widget.stage}', // 스테이지 정보 저장
+                      difficulty: 'challenge',
+                    );
+
+                    if (context.mounted) {
+                      Navigator.pop(context); // 등록 다이얼로그 닫기
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("랭킹이 등록되었습니다!")));
+                      // 랭킹 화면으로 이동할 수도 있음 (선택 사항)
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("랭킹 등록 실패. 네트워크를 확인하세요.")));
+                      setDialogState(() => isSaving = false);
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black87,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: isSaving 
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black87))
+                  : const Text('등록'),
+              ),
+            ],
+          );
+        }
+      ),
+    );
+  }
+
   void _showClearDialog(int timeBonus) {
     showDialog(
       context: context,
@@ -345,6 +432,13 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+               // 랭킹 등록 다이얼로그 띄우기 (현재 다이얼로그 유지한 채로 위에 띄움)
+               _showRankingRegisterDialog();
+            },
+            child: const Text('랭킹 등록', style: TextStyle(color: Colors.blueAccent)),
+          ),
           if (widget.stage < 20)
             TextButton(
               onPressed: () {
@@ -398,10 +492,16 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
           ],
         ),
         content: Text(
-          '시간이 부족했습니다.\n다시 도전해보세요!',
+          '시간이 부족했습니다.\n최종 점수: $_score점', // 점수 표시 추가
           style: const TextStyle(color: Colors.white70, fontSize: 16),
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+               _showRankingRegisterDialog();
+            },
+            child: const Text('랭킹 등록', style: TextStyle(color: Colors.blueAccent)),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // dialog
