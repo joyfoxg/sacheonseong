@@ -836,10 +836,11 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
                              painter: NeonPathPainter(
                                _selectedPath!, 
                                _cols, 
-                               _tileWidth + 2, // width + spacing
+                               _tileWidth + 2, // width + spacing (crossAxisSpacing=2)
                                _tileHeight + 2, 
-                               paddingX: 10,
+                               paddingX: 10, // GridView padding
                                paddingY: 10,
+                               adjustForBorder: false, // Challenge 모드는 전체 렌더링이므로 오프셋 불필요
                              ),
                            );
                          }
