@@ -636,7 +636,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
      } else if (_logic.isDeadlock(_board)) {
        // 더 이상 깰 수 없음 -> 자동 섞기
        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("패가 꼬여서 자동으로 섞습니다!")));
-       _shuffleBoard();
+       _shuffleBoard(consumeItem: false);
      }
   }
 
