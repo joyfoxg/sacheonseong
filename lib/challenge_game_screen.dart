@@ -15,7 +15,7 @@ class ChallengeGameScreen extends StatefulWidget {
   State<ChallengeGameScreen> createState() => _ChallengeGameScreenState();
 }
 
-class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
+class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTickerProviderStateMixin {
   final AudioManager _audioManager = AudioManager();
   late SichuanLogic _logic;
   late StageConfig _config;
@@ -45,6 +45,12 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   int _hintCount = 2;
 
   Timer? _pathClearTimer;
+  
+  // 파티클 시스템
+  final ParticleSystem _particleSystem = ParticleSystem();
+  late final Ticker _ticker;
+  double _tileWidth = 0;
+  double _tileHeight = 0;
 
   @override
   void initState() {
@@ -75,6 +81,13 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
       pattern: _config.pattern,
     );
     _remainingSeconds = _config.timeLimitSeconds;
+    
+    // 파티클 업데이트 루프 시작
+    _ticker = createTicker((elapsed) {
+      _particleSystem.update();
+    });
+    _ticker.start();
+    
     _startGame();
   }
 
@@ -216,6 +229,23 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
 
         _audioManager.playSuccess();
         
+        // 파티클 효과 생성
+        if (_tileWidth > 0 && _tileHeight > 0) {
+          int r1 = _selectedIndex ~/ _cols;
+          int c1 = _selectedIndex % _cols;
+          int r2 = index ~/ _cols;
+          int c2 = index % _cols;
+          
+          // 패딩 10, spacing 2 고려
+          double x1 = 10.0 + c1 * (_tileWidth + 2) + _tileWidth / 2;
+          double y1 = 10.0 + r1 * (_tileHeight + 2) + _tileHeight / 2;
+          double x2 = 10.0 + c2 * (_tileWidth + 2) + _tileWidth / 2;
+          double y2 = 10.0 + r2 * (_tileHeight + 2) + _tileHeight / 2;
+          
+          _particleSystem.addExplosion(Offset(x1, y1));
+          _particleSystem.addExplosion(Offset(x2, y2));
+        }
+
         // 점수 추가
         _pairsCleared++;
         _score += 100;
@@ -577,6 +607,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   void dispose() {
     _timer?.cancel();
     _pathClearTimer?.cancel();
+    _ticker.dispose();
     super.dispose();
   }
 
@@ -765,20 +796,48 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> {
   Widget _buildGameBoard() {
     return Center(
       child: SingleChildScrollView(
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(10), // 타일 크기 확대를 위해 패딩 축소 (40 -> 10)
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _cols, // 동적 컬럼 수 사용 (40타일 -> 6열)
-            crossAxisSpacing: 2,
-            mainAxisSpacing: 2,
-            childAspectRatio: 0.75,
-          ),
-          itemCount: _board.length,
-          itemBuilder: (context, index) {
-            return _buildTile(index);
-          },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 타일 크기 계산
+            double totalWidth = constraints.maxWidth;
+            double gridWidth = totalWidth - 20; // padding 10
+            int crossAxisSpacing = 2;
+            _tileWidth = (gridWidth - (_cols - 1) * crossAxisSpacing) / _cols;
+            _tileHeight = _tileWidth / 0.75;
+            
+            return Stack(
+              children: [
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(10), // 타일 크기 확대를 위해 패딩 축소 (40 -> 10)
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _cols, // 동적 컬럼 수 사용 (40타일 -> 6열)
+                    crossAxisSpacing: 2,
+                    mainAxisSpacing: 2,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: _board.length,
+                  itemBuilder: (context, index) {
+                    return _buildTile(index);
+                  },
+                ),
+                
+                // 파티클 오버레이
+                Positioned.fill(
+                  child: ListenableBuilder(
+                    listenable: _particleSystem,
+                    builder: (context, child) {
+                      return ParticleOverlay(
+                        system: _particleSystem,
+                        size: Size.infinite,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
         ),
       ),
     );
