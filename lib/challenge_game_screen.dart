@@ -5,6 +5,8 @@ import 'game_logic.dart';
 import 'audio_manager.dart';
 import 'challenge_stage_config.dart';
 import 'leaderboard_service.dart';
+import 'widgets/particle_overlay.dart';
+import 'package:flutter/scheduler.dart';
 
 class ChallengeGameScreen extends StatefulWidget {
   final int stage;
