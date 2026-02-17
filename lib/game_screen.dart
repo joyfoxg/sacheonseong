@@ -683,7 +683,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _shuffleBoard() {
+  void _shuffleBoard({bool consumeItem = true}) {
     setState(() {
       // 현재 남은 타일들만 모아서 다시 셔플
       List<String> remainingTiles = _board.where((t) => t.isNotEmpty).toList();
@@ -697,8 +697,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         }
       }
       
-      if (_shuffleCount > 0) _shuffleCount--;
+      if (consumeItem && _shuffleCount > 0) _shuffleCount--;
       _selectedIndex = -1;
+      _selectedPath = null; // 선택된 경로 초기화
     });
   }
 
