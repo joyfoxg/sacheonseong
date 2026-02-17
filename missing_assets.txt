@@ -1,0 +1,15 @@
+00:00 +0: loading C:/Project/android/sacheonseong_game/test/check_assets_test.dart
+00:00 +0: Check for missing tile assets
+MISSING_FILES_START
+dh_tile_04_13.png
+dh_tile_07_13.png
+dh_tile_08_13.png
+dh_tile_09_13.png
+pt_tile_09_01.png
+MISSING_FILES_END
+00:00 +0 -1: Check for missing tile assets [E]
+  Found 5 missing asset files
+  package:matcher                   fail
+  test\check_assets_test.dart 35:7  main.<fn>
+  
+00:00 +0 -1: Some tests failed.
