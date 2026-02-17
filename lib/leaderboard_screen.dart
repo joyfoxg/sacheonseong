@@ -7,7 +7,7 @@ class LeaderboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4, // 3 -> 4
       child: Scaffold(
         appBar: AppBar(
           title: const Text('명예의 전당 (Top 20)', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -16,6 +16,7 @@ class LeaderboardScreen extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           bottom: const TabBar(
+            isScrollable: true, // 탭 많아지니 스크롤 가능하게
             indicatorColor: Colors.amber,
             indicatorWeight: 4,
             labelColor: Colors.amber,
@@ -25,6 +26,7 @@ class LeaderboardScreen extends StatelessWidget {
               Tab(text: "Easy"),
               Tab(text: "Normal"),
               Tab(text: "Hard"),
+              Tab(text: "Challenge"), // 추가
             ],
           ),
         ),
@@ -42,6 +44,7 @@ class LeaderboardScreen extends StatelessWidget {
               _LeaderboardList(difficulty: 'easy'),
               _LeaderboardList(difficulty: 'normal'),
               _LeaderboardList(difficulty: 'hard'),
+              _LeaderboardList(difficulty: 'challenge'), // 추가
             ],
           ),
         ),
@@ -175,8 +178,13 @@ class _LeaderboardList extends StatelessWidget {
                     entry.nickname,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
+                  subtitle: difficulty == 'challenge' 
+                    ? Text(entry.displayTime, style: const TextStyle(fontSize: 12, color: Colors.grey)) // 챌린지: 스테이지 정보
+                    : null,
                   trailing: Text(
-                    entry.displayTime,
+                    difficulty == 'challenge' 
+                        ? '${entry.score}점' 
+                        : entry.displayTime,
                     style: TextStyle(
                       color: Colors.brown[900],
                       fontWeight: FontWeight.bold,
