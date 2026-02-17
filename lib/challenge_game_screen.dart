@@ -6,6 +6,7 @@ import 'audio_manager.dart';
 import 'challenge_stage_config.dart';
 import 'leaderboard_service.dart';
 import 'widgets/particle_overlay.dart';
+import 'widgets/neon_path_painter.dart';
 import 'package:flutter/scheduler.dart';
 
 class ChallengeGameScreen extends StatefulWidget {
@@ -825,6 +826,29 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
                   },
                 ),
                 
+                Positioned.fill(
+                   child: IgnorePointer(
+                     child: ListenableBuilder( // 화면 갱신을 위해 ListenableBuilder 사용 (선택된 경로 변경 감지용이 필요하지만 여기선 setState로 리빌드됨)
+                       listenable: _particleSystem, // 더미 listenable (실제로는 부모 setState로 리빌드)
+                       builder: (context, child) {
+                         if (_selectedPath != null && _selectedPath!.isNotEmpty) {
+                           return CustomPaint(
+                             painter: NeonPathPainter(
+                               _selectedPath!, 
+                               _cols, 
+                               _tileWidth + 2, // width + spacing
+                               _tileHeight + 2, 
+                               paddingX: 10,
+                               paddingY: 10,
+                             ),
+                           );
+                         }
+                         return const SizedBox.shrink();
+                       },
+                     ),
+                   ),
+                ),
+
                 // 파티클 오버레이
                 Positioned.fill(
                   child: ListenableBuilder(
