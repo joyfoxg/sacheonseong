@@ -587,8 +587,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         double x2 = (c2 - 1) * 110.0 + 55.0;
         double y2 = (r2 - 1) * 145.0 + 72.5;
         
-        _particleSystem.addExplosion(Offset(x1, y1));
-        _particleSystem.addExplosion(Offset(x2, y2));
+        _particleSystem.addExplosion(Offset(x1, y1), scale: 1.8);
+        _particleSystem.addExplosion(Offset(x2, y2), scale: 1.8);
         
         // CRITICAL: 타이머 실행 전에 인덱스를 로컬 변수로 캡처 (Race Condition 방지)
         final int firstIndex = _selectedIndex;

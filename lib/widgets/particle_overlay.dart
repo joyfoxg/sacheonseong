@@ -25,10 +25,10 @@ class ParticleSystem extends ChangeNotifier {
   List<Particle> particles = [];
   final Random _random = Random();
 
-  void addExplosion(Offset position, {int count = 40, List<Color>? colors}) {
+  void addExplosion(Offset position, {int count = 40, List<Color>? colors, double scale = 1.0}) {
     for (int i = 0; i < count; i++) {
       double angle = _random.nextDouble() * 2 * pi;
-      double speed = _random.nextDouble() * 8 + 4; // 속도 증가 (4 ~ 12)
+      double speed = (_random.nextDouble() * 8 + 4) * scale; // 속도도 스케일에 비례
       
       Color color = colors != null && colors.isNotEmpty 
           ? colors[_random.nextInt(colors.length)]
@@ -37,16 +37,16 @@ class ParticleSystem extends ChangeNotifier {
               Colors.greenAccent[200]!, Colors.lightBlueAccent[200]!, Colors.blueAccent[200]!,
               Colors.purpleAccent[200]!, Colors.pinkAccent[200]!, Colors.cyanAccent[200]!,
               Colors.limeAccent[200]!, Colors.tealAccent[200]!, Colors.indigoAccent[200]!,
-            ][_random.nextInt(12)]; // 강렬한 액센트 컬러 사용
+            ][_random.nextInt(12)];
 
       particles.add(Particle(
         position: position,
         velocity: Offset(cos(angle) * speed, sin(angle) * speed),
         color: color,
-        size: _random.nextDouble() * 12 + 10, // 크기 증가 (10 ~ 22)
+        size: (_random.nextDouble() * 12 + 10) * scale, // 크기에 스케일 적용
         life: 1.0,
-        decay: _random.nextDouble() * 0.02 + 0.01, // 감소율 약간 줄임 (조금 더 오래 지속)
-        gravity: 0.2, // 중력 약간 증가 (무거운 느낌)
+        decay: _random.nextDouble() * 0.02 + 0.01,
+        gravity: 0.2 * scale, // 중력도 스케일에 비례
       ));
     }
     notifyListeners();
