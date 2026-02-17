@@ -843,19 +843,13 @@ class _PathPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (path.length < 2) return;
 
-    final paint = Paint()
-      ..color = Colors.redAccent
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
+    // 경로 생성
     Path drawPath = Path();
     
     Offset getCenter(int index) {
       int r = index ~/ cols;
       int c = index % cols;
-      // index는 패딩 포함 인덱스이므로 9x12 캔버스 좌표를 위해 -1 오프셋 적용
+      // index는 패딩 포함 인덱스이므로 -1 오프셋 적용
       return Offset((c - 1 + 0.5) * tileWidth, (r - 1 + 0.5) * tileHeight);
     }
 
@@ -865,7 +859,37 @@ class _PathPainter extends CustomPainter {
       drawPath.lineTo(p.dx, p.dy);
     }
 
-    canvas.drawPath(drawPath, paint);
+    // 그라데이션 쉐이더 생성
+    final Rect bounds = drawPath.getBounds();
+    final Rect shaderRect = bounds.inflate(10.0);
+    
+    final Shader gradient = const LinearGradient(
+      colors: [Colors.redAccent, Colors.orangeAccent, Colors.yellowAccent],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ).createShader(shaderRect.width > 0 ? shaderRect : Rect.fromLTWH(0,0,100,100)); // 안전장치
+
+    // 1. 외곽 글로우 (빛나는 효과)
+    final glowPaint = Paint()
+      ..shader = gradient
+      ..strokeWidth = 8 
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6); // 블러 효과
+
+    canvas.drawPath(drawPath, glowPaint);
+
+    // 2. 내부 코어 (밝은 선)
+    final corePaint = Paint()
+      ..color = Colors.white.withOpacity(0.9)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 2); 
+
+    canvas.drawPath(drawPath, corePaint);
   }
 
   @override
