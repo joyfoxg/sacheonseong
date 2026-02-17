@@ -880,4 +880,22 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
   }
 
 
+  void _autoShuffle() {
+    setState(() {
+      // 셔플 로직 (아이템 차감 안 함)
+      // BLOCK은 위치 고정, 일반 타일만 셔플
+      List<String> remainingTiles = _board.where((t) => t.isNotEmpty && t != 'BLOCK').toList();
+      remainingTiles.shuffle();
+      
+      int idx = 0;
+      for (int i = 0; i < _board.length; i++) {
+        if (_board[i].isNotEmpty && _board[i] != 'BLOCK') {
+          _board[i] = remainingTiles[idx++];
+        }
+      }
+      _selectedIndex = -1;
+      _selectedPath = null;
+    });
+  }
 }
+
