@@ -8,6 +8,7 @@ import 'leaderboard_service.dart';
 import 'widgets/particle_overlay.dart';
 import 'widgets/neon_path_painter.dart';
 import 'package:flutter/scheduler.dart';
+import 'dart:math' as math;
 
 class ChallengeGameScreen extends StatefulWidget {
   final int stage;
@@ -76,6 +77,24 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
       _rows = 14;
     }
 
+    // 패턴 마스크를 고려하여 유효 공간 구하기 및 격자 크기 자동 확장
+    int requiredTiles = _config.tileCount + _config.obstacleCount;
+    int validSpaces = _calculateValidSpaces(_rows, _cols, _config.pattern);
+    
+    while (validSpaces < requiredTiles) {
+      _cols += 2; // 가로 대칭을 위해 2칸씩 늘림
+      if (_cols > _rows) {
+          _rows += 2;
+      }
+      validSpaces = _calculateValidSpaces(_rows, _cols, _config.pattern);
+      
+      // 무한루프 방지
+      if (_cols > 20 || _rows > 30) {
+          debugPrint("Warning: Max grid size reached.");
+          break;
+      }
+    }
+
     _logic = SichuanLogic(
       rows: _rows,
       cols: _cols,
@@ -118,6 +137,42 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
         }
       });
     });
+  }
+
+  int _calculateValidSpaces(int rows, int cols, LayoutPattern? pattern) {
+    int count = 0;
+    int centerR = rows ~/ 2;
+    int centerC = cols ~/ 2;
+
+    for (int r = 1; r < rows - 1; r++) {
+      for (int c = 1; c < cols - 1; c++) {
+        bool isValid = true;
+        
+        if (pattern == null || pattern == LayoutPattern.pyramid) {
+             isValid = true;
+        } else if (pattern == LayoutPattern.diamond) {
+            if ((r - centerR).abs() + (c - centerC).abs() > (math.min(rows, cols) ~/ 2) - 1) isValid = false;
+        } else if (pattern == LayoutPattern.cross) {
+            if ((r - centerR).abs() > 1 && (c - centerC).abs() > 1) isValid = false;
+        } else if (pattern == LayoutPattern.ring) {
+            int dist = (r - centerR).abs() + (c - centerC).abs();
+            int maxDist = (math.min(rows, cols) ~/ 2) - 1;
+            int innerDist = math.max(2, maxDist ~/ 2);
+            if (dist < innerDist || dist > maxDist) isValid = false;
+        } else if (pattern == LayoutPattern.border) { 
+             if (r > 2 && r < rows - 3 && c > 2 && c < cols - 3) isValid = false;
+        } else if (pattern == LayoutPattern.stripes) {
+            if (r % 2 != 0) isValid = false;
+        } else if (pattern == LayoutPattern.zigzag) {
+            if ((r + c) % 2 != 0) isValid = false;
+        } else if (pattern == LayoutPattern.hourglass) {
+            if ((r - centerR).abs() < (c - centerC).abs()) isValid = false;
+        }
+        
+        if (isValid) count++;
+      }
+    }
+    return count;
   }
 
   Widget _buildTile(int index) {
@@ -327,27 +382,30 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
       final timeBonus = _remainingSeconds * 100;
       _score += timeBonus;
 
-      // 최고 점수 갱신
-      _saveScore();
+      // 최고 점수 갱신 및 해금
+      _saveScore(true);
 
       // 클리어 다이얼로그
       _showClearDialog(timeBonus);
     } else {
+      // 실패 시에도 지금까지 모은 점수로 기기 최고점수 갱신
+      _saveScore(false);
       // 실패 다이얼로그
       _showFailDialog();
     }
   }
 
-  Future<void> _saveScore() async {
+  Future<void> _saveScore(bool cleared) async {
     final prefs = await SharedPreferences.getInstance();
     final currentBest = prefs.getInt('challenge_stage_${widget.stage}_score') ?? 0;
     
+    // 실패해도 점수는 지금까지 모은 점수로 로컬 최고 점수 갱신 가능
     if (_score > currentBest) {
       await prefs.setInt('challenge_stage_${widget.stage}_score', _score);
     }
 
-    // 다음 단계 해금
-    if (widget.stage < 20) {
+    // 다음 단계 해금은 클리어 시에만
+    if (cleared && widget.stage < 20) {
       final unlockedStage = prefs.getInt('challenge_unlocked_stage') ?? 1;
       if (widget.stage >= unlockedStage) {
         await prefs.setInt('challenge_unlocked_stage', widget.stage + 1);
@@ -355,7 +413,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
     }
   }
 
-  void _showRankingRegisterDialog() {
+  void _showRankingRegisterDialog({bool cleared = true}) {
     TextEditingController nicknameController = TextEditingController();
     bool isSaving = false;
 
@@ -406,11 +464,12 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
                   try {
                     // 리더보드 서비스 호출
                     // 챌린지 모드는 'challenge' 난이도로, 점수는 score 필드에, displayTime에는 스테이지 정보를 저장
+                    String statusText = cleared ? 'Stage ${widget.stage}' : 'Stage ${widget.stage} (Fail)';
                     await LeaderboardService().saveScore(
                       nickname: nickname,
                       seconds: 0, // 챌린지는 시간이 아닌 점수 기준
                       score: _score,
-                      displayTime: 'Stage ${widget.stage}', // 스테이지 정보 저장
+                      displayTime: statusText, // 스테이지 및 클리어 여부 정보 저장
                       difficulty: 'challenge',
                     );
 
@@ -478,7 +537,7 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
           TextButton(
             onPressed: () {
                // 랭킹 등록 다이얼로그 띄우기 (현재 다이얼로그 유지한 채로 위에 띄움)
-               _showRankingRegisterDialog();
+               _showRankingRegisterDialog(cleared: true);
             },
             child: const Text('랭킹 등록', style: TextStyle(color: Colors.blueAccent)),
           ),
@@ -539,11 +598,15 @@ class _ChallengeGameScreenState extends State<ChallengeGameScreen> with SingleTi
           style: const TextStyle(color: Colors.white70, fontSize: 16),
         ),
         actions: [
-          TextButton(
+          ElevatedButton.icon(
             onPressed: () {
-               _showRankingRegisterDialog();
+               _showRankingRegisterDialog(cleared: false);
             },
-            child: const Text('랭킹 등록', style: TextStyle(color: Colors.blueAccent)),
+            icon: const Icon(Icons.emoji_events, color: Colors.amber, size: 18),
+            label: const Text('리더보드 등록', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent.withOpacity(0.8),
+            ),
           ),
           TextButton(
             onPressed: () {

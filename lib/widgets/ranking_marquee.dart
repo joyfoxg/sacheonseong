@@ -247,18 +247,45 @@ class _RankingMarqueeState extends State<RankingMarquee> {
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  entry.displayTime,
-                                  style: TextStyle(
-                                    color: Colors.amber[300],
-                                    fontSize: 15,
-                                    fontFamily: 'monospace',
-                                    fontWeight: FontWeight.bold,
-                                    shadows: [
-                                      Shadow(color: Colors.black54, offset: const Offset(1, 1), blurRadius: 2),
-                                    ],
-                                  ),
-                                ),
+                                if (Difficulty.values[_currentDifficultyIndex] == Difficulty.challenge)
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '${entry.score}점',
+                                          style: TextStyle(
+                                            color: Colors.amber[300],
+                                            fontSize: 15,
+                                            fontFamily: 'monospace',
+                                            fontWeight: FontWeight.bold,
+                                            shadows: [
+                                              Shadow(color: Colors.black54, offset: const Offset(1, 1), blurRadius: 2),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          entry.displayTime, // Stage N
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                else
+                                    Text(
+                                      entry.displayTime,
+                                      style: TextStyle(
+                                        color: Colors.amber[300],
+                                        fontSize: 15,
+                                        fontFamily: 'monospace',
+                                        fontWeight: FontWeight.bold,
+                                        shadows: [
+                                          Shadow(color: Colors.black54, offset: const Offset(1, 1), blurRadius: 2),
+                                        ],
+                                      ),
+                                    ),
                               ],
                             ),
                           );

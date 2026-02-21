@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'game_screen.dart';
 import 'audio_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'leaderboard_screen.dart';
 import 'widgets/ranking_marquee.dart';
 import 'widgets/settings_dialog.dart';
@@ -23,6 +24,19 @@ class _TitleScreenState extends State<TitleScreen> {
     super.initState();
     _startBgm();
     _loadVersion();
+    _loadDifficulty();
+  }
+
+  void _loadDifficulty() async {
+    final prefs = await SharedPreferences.getInstance();
+    final idx = prefs.getInt('last_selected_difficulty');
+    if (idx != null && idx >= 0 && idx < Difficulty.values.length) {
+      if (mounted) {
+        setState(() {
+          _difficulty = Difficulty.values[idx];
+        });
+      }
+    }
   }
 
   void _startBgm() async {
@@ -218,12 +232,15 @@ class _TitleScreenState extends State<TitleScreen> {
           // 왼쪽 화살표
           IconButton(
             icon: const Icon(Icons.arrow_left, color: Colors.amber, size: 28), // 크기 감소
-            onPressed: () {
+            onPressed: () async {
+              final currentIndex = Difficulty.values.indexOf(_difficulty);
+              final newIndex = (currentIndex - 1) % Difficulty.values.length;
+              final newDifficulty = Difficulty.values[newIndex < 0 ? newIndex + Difficulty.values.length : newIndex];
               setState(() {
-                final currentIndex = Difficulty.values.indexOf(_difficulty);
-                final newIndex = (currentIndex - 1) % Difficulty.values.length;
-                _difficulty = Difficulty.values[newIndex];
+                _difficulty = newDifficulty;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setInt('last_selected_difficulty', Difficulty.values.indexOf(newDifficulty));
               AudioManager().playSelect();
             },
           ),
@@ -260,12 +277,15 @@ class _TitleScreenState extends State<TitleScreen> {
           // 오른쪽 화살표
           IconButton(
             icon: const Icon(Icons.arrow_right, color: Colors.amber, size: 28), // 크기 감소
-            onPressed: () {
+            onPressed: () async {
+              final currentIndex = Difficulty.values.indexOf(_difficulty);
+              final newIndex = (currentIndex + 1) % Difficulty.values.length;
+              final newDifficulty = Difficulty.values[newIndex];
               setState(() {
-                final currentIndex = Difficulty.values.indexOf(_difficulty);
-                final newIndex = (currentIndex + 1) % Difficulty.values.length;
-                _difficulty = Difficulty.values[newIndex];
+                _difficulty = newDifficulty;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setInt('last_selected_difficulty', newIndex);
               AudioManager().playSelect();
             },
           ),

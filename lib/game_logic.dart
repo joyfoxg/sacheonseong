@@ -225,10 +225,12 @@ class SichuanLogic {
     for (int idx in tempIndices) posToIndex[idx] = idx;
     
     for (int r = 1; r < rows - 1; r++) {
-        // 중앙열 처리
-        int centerIdx = r * cols + centerC;
-        if (posToIndex.containsKey(centerIdx)) {
-            centerColIndices.add(centerIdx);
+        // 중앙열 처리 (홀수 열일 때만 중앙열이 존재함)
+        if (cols % 2 != 0) {
+            int centerIdx = r * cols + centerC;
+            if (posToIndex.containsKey(centerIdx)) {
+                centerColIndices.add(centerIdx);
+            }
         }
         
         // 좌우 쌍 처리
@@ -332,6 +334,18 @@ class SichuanLogic {
         }
     }
     
+    // 장애물이 아직도 부족하면 tempIndices(전체 유효공간)에서 강제 추출 (지그재그 패턴 등 대칭쌍이 없을 때)
+    if (currentObstacles < obstaclesNeeded) {
+        List<int> fallbackIndices = List.from(tempIndices)..shuffle(random);
+        for (int idx in fallbackIndices) {
+            if (currentObstacles >= obstaclesNeeded) break;
+            if (!obstacleIndices.contains(idx)) {
+                obstacleIndices.add(idx);
+                currentObstacles++;
+            }
+        }
+    }
+    
     // 타일 배치 (남은 Pair들 + Center들)
     // 남은 Inner Pairs, Outer Pairs 합치기
     List<List<int>> allTilePairs = [...innerPairs, ...outerPairs];
@@ -432,7 +446,9 @@ class SichuanLogic {
         } else if (pattern == LayoutPattern.ring) {
             // 링: 중심에서 일정 거리 이상, 일정 거리 이하
             int dist = (r - centerR).abs() + (c - centerC).abs();
-            if (dist < 2 || dist > 5) isValid = false;
+            int maxDist = (min(rows, cols) ~/ 2) - 1;
+            int innerDist = max(2, maxDist ~/ 2);
+            if (dist < innerDist || dist > maxDist) isValid = false;
         } else if (pattern == LayoutPattern.border) { 
              // 테두리형: 가장자리만 사용
              if (r > 2 && r < rows - 3 && c > 2 && c < cols - 3) isValid = false;
